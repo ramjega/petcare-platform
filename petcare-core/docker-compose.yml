@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  app:
+    image: 'ramjega/pet-care-core'
+    network_mode: "host"
+    build:
+      context: .
+    container_name: pet-care-core
+    depends_on:
+    - db
+    environment:
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/petcare
+    - SPRING_DATASOURCE_USERNAME=petcare
+    - SPRING_DATASOURCE_PASSWORD=petcare@123
+    - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+    - "8000:8000"
+
+  db:
+    image: 'postgres:13.1-alpine'
+    network_mode: "host"
+    container_name: pet-care-db
+    environment:
+    - POSTGRES_USER=petcare
+    - POSTGRES_PASSWORD=petcare@123
+    ports:
+    - "5432:5432"
