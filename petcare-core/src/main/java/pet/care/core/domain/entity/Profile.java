@@ -18,7 +18,7 @@ import javax.validation.constraints.Size;
 @EqualsAndHashCode(callSuper = true)
 @Table(indexes = {
         @Index(columnList = "mobile", unique = true),
-        @Index(columnList = "email", unique = true),
+        @Index(columnList = "email"),
         @Index(columnList = "role")
 })
 
@@ -59,9 +59,6 @@ public class Profile extends ResourceEntity {
 
     @Size(max = 100, message = "Specialization cannot exceed 100 characters")
     private String specialization;
-
-    @Transient
-    private String token;
 
     // Encode password before persisting
     @PrePersist

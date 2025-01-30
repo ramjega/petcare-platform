@@ -53,6 +53,7 @@ public class PetController {
             pet.get().setType(value.getType());
             pet.get().setBreed(value.getBreed());
             pet.get().setGender(value.getGender());
+            pet.get().setColor(value.getColor());
 
             Result<Pet> result = service.update(pet.get());
             return response(result);

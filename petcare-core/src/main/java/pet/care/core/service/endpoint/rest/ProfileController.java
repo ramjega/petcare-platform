@@ -42,7 +42,7 @@ public class ProfileController {
         }
     }
 
-    @PostMapping(value = "/profile/register")
+    @PostMapping(value = "/api//profile/register")
     public ResponseEntity create(@RequestBody Profile value) {
         return response(service.create(value));
     }

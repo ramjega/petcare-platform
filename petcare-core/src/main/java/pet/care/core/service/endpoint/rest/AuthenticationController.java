@@ -1,6 +1,7 @@
 package pet.care.core.service.endpoint.rest;
 
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,21 +23,20 @@ import pet.care.core.service.endpoint.auth.JwtUserDetailsService;
 
 @RestController
 @CrossOrigin
+@Log4j2
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
     private final JwtUserDetailsService userDetailsService;
-    private final ProfileRepo profileRepo;
 
     public AuthenticationController(ApplicationContext context) {
         this.authenticationManager = context.getBean(AuthenticationManager.class);
         this.jwtTokenUtil = context.getBean(JwtTokenUtil.class);
         this.userDetailsService = context.getBean(JwtUserDetailsService.class);
-        this.profileRepo = context.getBean(ProfileRepo.class);
     }
 
-    @PostMapping(value = "/authenticate")
+    @PostMapping(value = "/api/auth/login")
     public ResponseEntity createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
 
         Result result = authenticate(authenticationRequest.getMobile(), authenticationRequest.getPassword());
@@ -55,10 +55,7 @@ public class AuthenticationController {
         }
 
         final String token = jwtTokenUtil.generateToken(userDetails);
-
-        profile.setToken(token);
-
-        return ResponseEntity.ok(profile);
+        return ResponseEntity.ok(new JwtResponse(token, profile));
     }
 
     private Result authenticate(String username, String password) {
@@ -71,4 +68,5 @@ public class AuthenticationController {
             return Result.of(StatusCode.sc(TxStatusCodes.SC_NOT_AUTHORIZED, "Invalid mobile or password"));
         }
     }
+
 }
