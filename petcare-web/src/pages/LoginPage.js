@@ -18,7 +18,7 @@ import { motion } from "framer-motion"; // Import Framer Motion for smooth anima
 const LoginPage = () => {
     const [credentials, setCredentials] = useState({ mobile: "", password: "" });
     const [errors, setErrors] = useState({});
-    const [shake, setShake] = useState(false); // State for shake effect
+    const [shake, setShake] = useState(false);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -37,7 +37,7 @@ const LoginPage = () => {
         if (!credentials.mobile) {
             newErrors.mobile = "Mobile number is required";
         } else if (!/^(07\d{8}|\d{9})$/.test(credentials.mobile)) {
-            newErrors.mobile = "Enter a valid mobile number (e.g., 0775228995 or 775228995)";
+            newErrors.mobile = "Enter a valid mobile number (e.g., 0771234567 or 771234567)";
         }
 
         // Validate Password

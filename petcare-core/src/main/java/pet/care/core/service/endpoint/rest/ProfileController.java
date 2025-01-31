@@ -10,6 +10,7 @@ import pet.care.core.service.common.ResourcePatch;
 import pet.care.core.service.common.Result;
 import pet.care.core.service.common.StatusCode;
 import pet.care.core.service.common.TxStatusCodes;
+import pet.care.core.service.endpoint.auth.JwtRequest;
 import pet.care.core.service.endpoint.auth.SecurityHolder;
 import pet.care.core.service.module.ProfileService;
 
@@ -25,10 +26,12 @@ public class ProfileController {
 
     private final ProfileService service;
     private final ProfileRepo repo;
+    private final AuthenticationController authController;
 
     public ProfileController(ApplicationContext context) {
         this.service = context.getBean(ProfileService.class);
         this.repo = context.getBean(ProfileRepo.class);
+        this.authController = context.getBean(AuthenticationController.class);
     }
 
     @GetMapping(value = "/profile/get")
@@ -44,7 +47,17 @@ public class ProfileController {
 
     @PostMapping(value = "/api//profile/register")
     public ResponseEntity create(@RequestBody Profile value) {
-        return response(service.create(value));
+        String mobile = value.getMobile();
+        String password = value.getPassword();
+
+        Result<Profile> result = service.create(value);
+
+        if (result.code().isSuccess()) {
+            JwtRequest jwtRequest = new JwtRequest(mobile, password);
+            return authController.createAuthenticationToken(jwtRequest);
+        } else {
+            return response(result);
+        }
     }
 
     @PostMapping(value = "/profile/complete")
