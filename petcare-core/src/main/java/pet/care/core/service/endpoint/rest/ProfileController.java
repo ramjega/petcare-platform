@@ -34,7 +34,7 @@ public class ProfileController {
         this.authController = context.getBean(AuthenticationController.class);
     }
 
-    @GetMapping(value = "/profile/get")
+    @GetMapping(value = "/api/profiles")
     public ResponseEntity get() {
         Optional<Profile> profile = repo.findById(SecurityHolder.getProfileId());
 
@@ -58,11 +58,6 @@ public class ProfileController {
         } else {
             return response(result);
         }
-    }
-
-    @PostMapping(value = "/profile/complete")
-    public ResponseEntity complete(@RequestBody Profile value) {
-        return response(service.complete(value));
     }
 
     @PatchMapping(value = "/profile/patch/{id}")

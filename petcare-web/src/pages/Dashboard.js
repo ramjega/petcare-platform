@@ -1,31 +1,30 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setPets } from '../redux/petSlice';
-import { fetchPets } from '../services/petService';
+import React from "react";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
+import PetOwnerDashboard from "./dashboards/PetOwnerDashboard";
+import ProfessionalDashboard from "./dashboards/ProfessionalDashboard";
+import CommunityDashboard from "./dashboards/CommunityDashboard";
+import AdminDashboard from "./dashboards/AdminDashboard"; // New Admin Dashboard
 
 const Dashboard = () => {
-    const dispatch = useDispatch();
-    const pets = useSelector((state) => state.pets.pets);
-    const token = useSelector((state) => state.auth.token);
+    const { user } = useSelector((state) => state.auth);
 
-    useEffect(() => {
-        const loadPets = async () => {
-            const petData = await fetchPets(token);
-            dispatch(setPets(petData));
-        };
-        loadPets();
-    }, [dispatch, token]);
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
 
-    return (
-        <div>
-            <h2>Dashboard</h2>
-            <ul>
-                {pets.map((pet) => (
-                    <li key={pet.id}>{pet.name}</li>
-                ))}
-            </ul>
-        </div>
-    );
+    switch (user.role) {
+        case "pet_owner":
+            return <PetOwnerDashboard />;
+        case "professional":
+            return <ProfessionalDashboard />;
+        case "community":
+            return <CommunityDashboard />;
+        case "admin":
+            return <AdminDashboard />;
+        default:
+            return <Navigate to="/login" replace />;
+    }
 };
 
 export default Dashboard;

@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import Dashboard from './pages/Dashboard';
-import Header from './components/Header';
 import Layout from "./components/Layout";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
@@ -19,6 +18,7 @@ function App() {
                     <Route path="/login" element={<LoginPage/>} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/signup" element={<SignupPage/>} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                 </Routes>
             </Layout>
         </Router>

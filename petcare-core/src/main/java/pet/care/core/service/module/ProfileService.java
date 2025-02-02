@@ -42,26 +42,6 @@ public class ProfileService extends BaseResourceService<Profile> {
         return super.create(value);
     }
 
-    public Result<Profile> complete(Profile value) {
-
-        if (isNull(value.getRole()) || isNull(value.getName()) || isNull(value.getEmail()) || isNull(value.getAddress())) {
-            return Result.of(StatusCode.sc(TxStatusCodes.SC_VALIDATION_FAILED, "Missing required fields - role | name | email | address"));
-        }
-
-        Optional<Profile> profile = profileRepo.findById(SecurityHolder.getProfileId());
-
-        if (!profile.isPresent()) {
-            return Result.of(StatusCode.sc(TxStatusCodes.SC_NOT_FOUND, "Request profile not found!"));
-        }
-
-        profile.get().setRole(value.getRole());
-        profile.get().setName(value.getName());
-        profile.get().setEmail(value.getEmail());
-        profile.get().setAddress(value.getEmail());
-
-        return super.update(profile.get());
-    }
-
     @Override
     public Result<Profile> update(Profile value) {
 
