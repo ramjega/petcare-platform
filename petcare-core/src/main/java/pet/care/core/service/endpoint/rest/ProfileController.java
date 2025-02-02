@@ -45,7 +45,7 @@ public class ProfileController {
         }
     }
 
-    @PostMapping(value = "/api//profile/register")
+    @PostMapping(value = "/api/profile/register")
     public ResponseEntity create(@RequestBody Profile value) {
         String mobile = value.getMobile();
         String password = value.getPassword();

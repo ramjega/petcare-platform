@@ -6,7 +6,7 @@ import petReducer from './petSlice';
 export const store = configureStore({
     reducer: {
         auth: authReducer,
-        pets: petReducer,
+        pet: petReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger)
 });

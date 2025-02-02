@@ -48,4 +48,6 @@ public class Pet extends ResourceEntity {
     @JoinColumn(name = "ownerId", referencedColumnName = "id", nullable = false)
     @NotNull(message = "Owner is required")
     private Profile owner;
+
+    private String imageUrl;
 }

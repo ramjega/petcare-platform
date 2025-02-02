@@ -1,28 +1,72 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const initialState = {
-    pets: [],
-};
+// API Base URL
+const API_URL = "http://localhost:8000/api";
+
+// **Async Thunk to Fetch Pets**
+export const fetchPets = createAsyncThunk("pets/fetchPets", async (_, { rejectWithValue,getState }) => {
+    try {
+        const token = getState().auth.token;
+        const response = await axios.get(`${API_URL}/pets`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        return response.data.data || []; // Extract pets array from response
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch pets");
+    }
+});
+
+// **Async Thunk to Create Pet**
+export const createPet = createAsyncThunk("pet/createPet", async (petData, { rejectWithValue, getState }) => {
+    try {
+        const token = getState().auth.token; // Get token from Redux state
+        const response = await axios.post(`${API_URL}/pet/register`, petData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || "Failed to create pet");
+    }
+});
 
 const petSlice = createSlice({
-    name: 'pets',
-    initialState,
-    reducers: {
-        setPets(state, action) {
-            state.pets = action.payload;
-        },
-        addPet(state, action) {
-            state.pets.push(action.payload);
-        },
-        updatePet(state, action) {
-            const index = state.pets.findIndex((pet) => pet.id === action.payload.id);
-            if (index !== -1) state.pets[index] = action.payload;
-        },
-        deletePet(state, action) {
-            state.pets = state.pets.filter((pet) => pet.id !== action.payload);
-        },
+    name: "pet",
+    initialState: {
+        pets: [],
+        status: "idle", // idle | loading | succeeded | failed
+        error: null,
+    },
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchPets.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchPets.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.pets = action.payload; // Store fetched pets
+            })
+            .addCase(fetchPets.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+            .addCase(createPet.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(createPet.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.pets.push(action.payload); // Add new pet to list
+            })
+            .addCase(createPet.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            });
     },
 });
 
-export const { setPets, addPet, updatePet, deletePet } = petSlice.actions;
 export default petSlice.reducer;

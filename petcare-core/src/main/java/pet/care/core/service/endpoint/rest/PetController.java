@@ -30,7 +30,7 @@ public class PetController {
         this.repo = context.getBean(PetRepo.class);
     }
 
-    @GetMapping(value = "/pet/get")
+    @GetMapping(value = "/api/pets")
     public ResponseEntity get() {
         List<Pet> pets = repo.findByOwnerId(SecurityHolder.getProfileId());
 
@@ -38,13 +38,13 @@ public class PetController {
         return response(Result.of(holder));
     }
 
-    @PostMapping(value = "/pet/register")
+    @PostMapping(value = "/api/pet/register")
     public ResponseEntity register(@RequestBody Pet value) {
         Result<Pet> result = service.create(value);
         return response(result);
     }
 
-    @PostMapping(value = "/pet/update")
+    @PostMapping(value = "/api/pet/update")
     public ResponseEntity update(@RequestBody Pet value) {
         Optional<Pet> pet = repo.findById(value.getId());
 
