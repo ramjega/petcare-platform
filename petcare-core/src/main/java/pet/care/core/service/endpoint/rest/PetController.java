@@ -31,11 +31,22 @@ public class PetController {
     }
 
     @GetMapping(value = "/api/pets")
-    public ResponseEntity get() {
+    public ResponseEntity fetch() {
         List<Pet> pets = repo.findByOwnerId(SecurityHolder.getProfileId());
 
         ListHolder holder = new ListHolder(pets);
         return response(Result.of(holder));
+    }
+
+    @GetMapping(value = "/api/pet/{id}")
+    public ResponseEntity fetchById(@PathVariable Long id) {
+        Optional<Pet> pet = repo.findById(id);
+
+        if (pet.isPresent()) {
+            return response(Result.of(pet.get()));
+        } else {
+            return response(Result.of("Pet not found for id ["+id+"]!"));
+        }
     }
 
     @PostMapping(value = "/api/pet/register")
@@ -54,6 +65,8 @@ public class PetController {
             pet.get().setBreed(value.getBreed());
             pet.get().setGender(value.getGender());
             pet.get().setColor(value.getColor());
+            pet.get().setBirthDate(value.getBirthDate());
+            pet.get().setImageUrl(value.getImageUrl());
 
             Result<Pet> result = service.update(pet.get());
             return response(result);
@@ -63,13 +76,8 @@ public class PetController {
 
     }
 
-    @DeleteMapping(value = "/pet/delete/{id}")
+    @DeleteMapping(value = "/api/pet/delete/{id}")
     public ResponseEntity delete(@PathVariable Long id) {
-        Result<Pet> result = service.delete(id);
-        if (result.code().isSuccess()) {
-            return response(Result.of("Deleted Successfully"));
-        } else {
-            return response(result);
-        }
+        return response(service.delete(id));
     }
 }
