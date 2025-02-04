@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import ForgotPassword from "./pages/ForgotPassword";
+import ProfileView from "./pages/ProfileView";
 
 function App() {
     return (
@@ -19,6 +20,7 @@ function App() {
                     <Route path="/login" element={<LoginPage/>} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/signup" element={<SignupPage/>} />
+                    <Route path="/profile" element={<ProfileView/>} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/dashboard/*" element={<Dashboard />} />
                     <Route path="/dashboard/pet/:petId" element={<PetDetail />} />

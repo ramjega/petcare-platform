@@ -14,6 +14,7 @@ import {
     Box,
 } from "@mui/material";
 import { PhotoCamera } from "@mui/icons-material";
+import PetsIcon from "@mui/icons-material/Pets";
 
 const petTypes = ["Dog", "Cat", "Cow", "Goat", "Rabbit", "Bird"];
 const genders = ["Male", "Female"];
@@ -106,7 +107,7 @@ const PetDialog = ({ open, onClose, onSubmit, pet = null, mode,loading }) => {
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
+            <DialogTitle sx={{ textAlign: "center", fontWeight: "bold",  bgcolor: "#1976d2", color: "#fff", mb: 2 }}>
                 {isEditMode ? "Edit Pet Details" : "Add a New Pet"}
             </DialogTitle>
             <DialogContent ref={formRef} sx={{ maxHeight: "70vh", overflowY: "auto" }}>
@@ -122,15 +123,21 @@ const PetDialog = ({ open, onClose, onSubmit, pet = null, mode,loading }) => {
                         />
                         <label htmlFor="upload-photo" style={{ cursor: "pointer" }}>
                             <Avatar
-                                src={previewImage || "https://via.placeholder.com/150"}
+                                src={previewImage || undefined} // Remove src if previewImage is null
                                 sx={{
                                     width: 100,
                                     height: 100,
                                     borderRadius: "50%",
                                     boxShadow: 2,
                                     border: "3px solid #1976d2",
+                                    backgroundColor: previewImage ? "transparent" : "#e0e0e0", // Light gray background when no image
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                 }}
-                            />
+                            >
+                                {!previewImage && <PetsIcon sx={{ fontSize: 50, color: "#1976d2" }} />} {/* Show PetsIcon if no image */}
+                            </Avatar>
                         </label>
                         <IconButton
                             component="label"

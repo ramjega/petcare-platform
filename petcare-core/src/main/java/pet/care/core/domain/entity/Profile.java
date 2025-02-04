@@ -60,6 +60,8 @@ public class Profile extends ResourceEntity {
     @Size(max = 100, message = "Specialization cannot exceed 100 characters")
     private String specialization;
 
+    private String imageUrl;
+
     // Encode password before persisting
     @PrePersist
     private void encodePassword() {

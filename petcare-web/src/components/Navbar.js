@@ -1,6 +1,34 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Drawer, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
-import { Menu as MenuIcon, Notifications as NotificationsIcon, AccountCircle as AccountCircleIcon, Pets, Event, MedicalServices, Settings, Dashboard } from "@mui/icons-material";
+import {
+    AppBar,
+    Toolbar,
+    Typography,
+    IconButton,
+    Menu,
+    MenuItem,
+    Drawer,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Badge,
+    Divider,
+    Box
+} from "@mui/material";
+import {
+    Menu as MenuIcon,
+    Notifications as NotificationsIcon,
+    AccountCircle as AccountCircleIcon,
+    Pets,
+    Event,
+    MedicalServices,
+    Settings,
+    Dashboard,
+    AdminPanelSettings,
+    Logout,
+    Person,
+    Home
+} from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authSlice"; // Import logout action
@@ -16,21 +44,21 @@ const Navbar = () => {
     // Sidebar options based on user role
     const sidebarOptions = {
         pet_owner: [
-            { text: "Dashboard", icon: <Dashboard />, route: "/dashboard" },
+            { text: "Home", icon: <Home />, route: "/dashboard" },
             { text: "Manage Pets", icon: <Pets />, route: "/dashboard/pets" },
             { text: "Appointments", icon: <Event />, route: "/dashboard/appointments" },
             { text: "Health Records", icon: <MedicalServices />, route: "/dashboard/records" },
             { text: "Settings", icon: <Settings />, route: "/dashboard/settings" },
         ],
         professional: [
-            { text: "Dashboard", icon: <Dashboard />, route: "/dashboard" },
+            { text: "Home", icon: <Home />, route: "/dashboard" },
             { text: "Manage Appointments", icon: <Event />, route: "/dashboard/appointments" },
             { text: "Client Requests", icon: <Pets />, route: "/dashboard/clients" },
             { text: "Settings", icon: <Settings />, route: "/dashboard/settings" },
         ],
         admin: [
-            { text: "Admin Dashboard", icon: <Dashboard />, route: "/dashboard/admin" },
-            { text: "User Management", icon: <Pets />, route: "/dashboard/users" },
+            { text: "Admin Dashboard", icon: <AdminPanelSettings />, route: "/dashboard/admin" },
+            { text: "User Management", icon: <Person />, route: "/dashboard/users" },
             { text: "System Settings", icon: <Settings />, route: "/dashboard/settings" },
         ],
     };
@@ -71,21 +99,23 @@ const Navbar = () => {
     return (
         <>
             {/* Navbar */}
-            <AppBar position="sticky" color="primary">
+            <AppBar position="sticky" sx={{ bgcolor: "#1976d2" }}>
                 <Toolbar>
                     {user && (
                         <IconButton edge="start" color="inherit" onClick={toggleSidebar(true)}>
                             <MenuIcon />
                         </IconButton>
                     )}
-                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" sx={{ flexGrow: 1, textAlign: "center" }}>
                         {currentTitle}
                     </Typography>
 
                     {/* Notifications Icon */}
                     {user && (
                         <IconButton color="inherit">
-                            <NotificationsIcon />
+                            <Badge badgeContent={3} color="error">
+                                <NotificationsIcon />
+                            </Badge>
                         </IconButton>
                     )}
 
@@ -96,9 +126,22 @@ const Navbar = () => {
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                         {user ? (
                             <>
-                                <MenuItem disabled>{user.name}</MenuItem> {/* Show username */}
-                                <MenuItem onClick={() => navigate("/dashboard")}>Dashboard</MenuItem>
-                                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                                <MenuItem disabled>
+                                    <Person sx={{ mr: 1, color: "#1976d2" }} />
+                                    {user.name}
+                                </MenuItem>
+                                <MenuItem onClick={() => { navigate("/profile"); handleMenuClose(); }}>
+                                    <Person sx={{ mr: 1, color: "#1976d2" }} />
+                                    Profile
+                                </MenuItem>
+                                <MenuItem onClick={() => { navigate("/dashboard"); handleMenuClose(); }}>
+                                    <Dashboard sx={{ mr: 1, color: "#1976d2" }} />
+                                    Dashboard
+                                </MenuItem>
+                                <MenuItem onClick={handleLogout}>
+                                    <Logout sx={{ mr: 1, color: "red" }} />
+                                    Logout
+                                </MenuItem>
                             </>
                         ) : (
                             <>
@@ -113,14 +156,48 @@ const Navbar = () => {
             {/* Sidebar Drawer */}
             {user && (
                 <Drawer anchor="left" open={sidebarOpen} onClose={toggleSidebar(false)}>
-                    <List sx={{ width: 250 }}>
-                        {(sidebarOptions[user.role] || []).map((option) => (
-                            <ListItem button key={option.text} onClick={() => navigate(option.route)}>
-                                <ListItemIcon>{option.icon}</ListItemIcon>
-                                <ListItemText primary={option.text} />
-                            </ListItem>
-                        ))}
-                    </List>
+                    <Box sx={{
+                        width: 250,
+                        backgroundColor: "#f4f4f4",
+                        height: "100vh",
+                        display: "flex",
+                        flexDirection: "column"
+                    }}>
+                        <Box sx={{
+                            p: 3,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "#1976d2",
+                            color: "#fff",
+                            fontWeight: "bold",
+                            fontSize: "1.2rem",
+                            textAlign: "center"
+                        }}>
+                            {user.name}'s Menu
+                        </Box>
+
+                        <Divider />
+
+                        <List>
+                            {(sidebarOptions[user.role] || []).map((option) => (
+                                <ListItem
+                                    button
+                                    key={option.text}
+                                    onClick={() => { navigate(option.route); toggleSidebar(false)(); }}
+                                    sx={{
+                                        "&:hover": { bgcolor: "#e3f2fd" },
+                                        borderRadius: "10px",
+                                        mx: 1,
+                                        mt: 1
+                                    }}
+                                >
+                                    <ListItemIcon sx={{ color: "#1976d2" }}>{option.icon}</ListItemIcon>
+                                    <ListItemText primary={option.text} />
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Box>
                 </Drawer>
             )}
         </>
