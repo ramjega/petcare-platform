@@ -11,7 +11,7 @@ export const fetchPets = createAsyncThunk("pets/fetchPets", async (_, { rejectWi
         const response = await axios.get(`${API_URL}/pets`, {
             headers: { Authorization: `Bearer ${token}` },
         });
-        return response.data.data || []; // Extract pets array from response
+        return response.data.data;
     } catch (error) {
         return rejectWithValue(error.response?.data?.message || "Failed to fetch pets");
     }

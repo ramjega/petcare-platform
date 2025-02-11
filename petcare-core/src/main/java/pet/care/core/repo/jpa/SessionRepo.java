@@ -8,7 +8,8 @@ import java.util.List;
 
 @Repository
 public interface SessionRepo extends JpaRepository<Session, Long> {
-    List<Session> findByDoctorId(Long id);
-    List<Session> findByDoctorIdAndStartAfter(Long id, Long start);
+    List<Session> findByProfessionalId(Long id);
+    List<Session> findByProfessionalIdAndStartAfter(Long id, Long start);
     List<Session> findByStartAfterAndStartBefore(Long start, Long end);
+    List<Session> findByProfessionalIdAndStartAfterAndStartBefore(Long id, Long start, Long end);
 }

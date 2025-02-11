@@ -47,13 +47,28 @@ public class ScheduleService extends BaseResourceService<Schedule> {
     @Override
     public Result<Schedule> create(Schedule value) {
 
-        if (value.getRecurringRule() == null || value.getHospital() == null || value.getMaxAllowed() == null) {
-            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - recurringRule | hospital | maxAllowed"));
+        if (value.getRecurringRule() == null || value.getMaxAllowed() == null) {
+            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - recurringRule | maxAllowed"));
         }
 
-        value.setDoctor(SecurityHolder.getProfile());
+        value.setProfessional(SecurityHolder.getProfile());
 
         Result<Schedule> result = super.create(value);
+
+        if (result.code().isSuccess() && value.getStatus() == ScheduleStatusValue.active) {
+            return generateTask(value);
+        }
+
+        return result;
+    }
+
+    @Override
+    public Result<Schedule> update(Schedule value) {
+        if (value.getRecurringRule() == null || value.getMaxAllowed() == null) {
+            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - recurringRule | maxAllowed"));
+        }
+
+        Result<Schedule> result = super.update(value);
 
         if (result.code().isSuccess() && value.getStatus() == ScheduleStatusValue.active) {
             return generateTask(value);
@@ -95,7 +110,7 @@ public class ScheduleService extends BaseResourceService<Schedule> {
                     session.setHospital(schedule.getHospital());
                     session.setMaxAllowed(schedule.getMaxAllowed());
                     session.setSchedule(schedule);
-                    session.setDoctor(schedule.getDoctor());
+                    session.setProfessional(schedule.getProfessional());
 
                     sessions.add(session);
                 }

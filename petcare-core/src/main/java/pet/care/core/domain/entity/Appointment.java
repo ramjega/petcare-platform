@@ -8,6 +8,8 @@ import pet.care.core.domain.type.AppointmentStatus;
 
 import javax.persistence.*;
 
+import static pet.care.core.domain.type.AppointmentStatus.booked;
+
 @Data
 @Entity
 @ToString(callSuper = true)
@@ -23,7 +25,7 @@ public class Appointment extends ResourceEntity {
 
     private Long token;
 
-    private AppointmentStatus status;
+    private AppointmentStatus status = booked;
 
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "id")

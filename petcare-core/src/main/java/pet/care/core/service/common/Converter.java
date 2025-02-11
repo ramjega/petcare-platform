@@ -15,7 +15,7 @@ public class Converter {
             return ResponseEntity.of(Optional.of(result.value()));
         } else {
             return ResponseEntity.status(httpStatus)
-                    .body(Optional.of(result.code()));
+                    .body(result.code());
         }
     }
 }

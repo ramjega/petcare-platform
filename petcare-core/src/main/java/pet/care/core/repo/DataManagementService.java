@@ -5,6 +5,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import pet.care.core.repo.jpa.ProfileRepo;
 import pet.care.core.domain.entity.Profile;
+import pet.care.core.repo.jpa.ScheduleRepo;
+import pet.care.core.repo.jpa.ScheduledTaskRepo;
+import pet.care.core.repo.jpa.SessionRepo;
 import pet.care.core.service.endpoint.auth.SecurityHolder;
 
 import javax.annotation.PostConstruct;

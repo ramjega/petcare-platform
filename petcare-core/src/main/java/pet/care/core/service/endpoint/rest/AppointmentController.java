@@ -28,37 +28,37 @@ public class AppointmentController {
         this.repo = context.getBean(AppointmentRepo.class);
     }
 
-    @GetMapping(value = "/appointment/get")
+    @GetMapping(value = "/api/appointment/my")
     public ResponseEntity get() {
         ListHolder<Appointment> holder = new ListHolder<>(repo.findByCustomerId(SecurityHolder.getProfileId()));
         return response(Result.of(holder));
     }
 
-    @GetMapping(value = "/appointment/get/session/{sessionId}")
+    @GetMapping(value = "/api/appointment/session/{sessionId}")
     public ResponseEntity getBySession(@PathVariable Long sessionId) {
         ListHolder<Appointment> holder = new ListHolder<>(repo.findBySessionId(sessionId));
         return response(Result.of(holder));
     }
 
-    @PostMapping(value = "/appointment/create")
+    @PostMapping(value = "/api/appointment/book")
     public ResponseEntity register(@RequestBody Appointment value) {
         Result<Appointment> result = service.create(value);
         return response(result);
     }
 
-    @PostMapping(value = "/appointment/attend/{id}")
+    @PostMapping(value = "/api/appointment/attend/{id}")
     public ResponseEntity attend(@PathVariable Long id) {
         Result<Appointment> result = service.attend(id);
         return response(result);
     }
 
-    @PostMapping(value = "/appointment/complete/{id}")
+    @PostMapping(value = "/api/appointment/complete/{id}")
     public ResponseEntity complete(@PathVariable Long id) {
         Result<Appointment> result = service.complete(id);
         return response(result);
     }
 
-    @PostMapping(value = "/appointment/cancel/{id}")
+    @PostMapping(value = "/api/appointment/cancel/{id}")
     public ResponseEntity cancel(@PathVariable Long id) {
         Result<Appointment> result = service.cancel(id);
         return response(result);

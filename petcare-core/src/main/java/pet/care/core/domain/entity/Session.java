@@ -43,8 +43,8 @@ public class Session extends ResourceEntity {
     private Long start;
 
     @ManyToOne
-    @JoinColumn(name = "doctorId", referencedColumnName = "id")
-    private Profile doctor;
+    @JoinColumn(name = "professionalId", referencedColumnName = "id")
+    private Profile professional;
 
     @ManyToOne
     @JoinColumn(name = "scheduleId", referencedColumnName = "id")

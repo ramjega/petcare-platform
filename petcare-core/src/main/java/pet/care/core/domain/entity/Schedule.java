@@ -21,11 +21,9 @@ public class Schedule extends ResourceEntity {
     @GeneratedValue(generator = "schedule_config_id_generator")
     protected Long id;
 
-    private String hospital;
-
     private Long maxAllowed;
 
-    private ScheduleStatusValue status = ScheduleStatusValue.active;
+    private ScheduleStatusValue status = ScheduleStatusValue.draft;
 
     private String recurringRule;
 
@@ -38,8 +36,9 @@ public class Schedule extends ResourceEntity {
     private ScheduledTask scheduledTask;
 
     @ManyToOne
-    @JoinColumn(name = "doctorId", referencedColumnName = "id")
-    private Profile doctor;
+    @JoinColumn(name = "professionalId", referencedColumnName = "id")
+    private Profile professional;
 
+    private String hospital; // optional for veterinarians usage
 }
 

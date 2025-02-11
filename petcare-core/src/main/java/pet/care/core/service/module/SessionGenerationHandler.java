@@ -97,7 +97,7 @@ public class SessionGenerationHandler implements ScheduledTaskHandler {
                     session.setHospital(schedule.getHospital());
                     session.setMaxAllowed(schedule.getMaxAllowed());
                     session.setSchedule(schedule);
-                    session.setDoctor(schedule.getDoctor());
+                    session.setProfessional(schedule.getProfessional());
 
                     Result<Session> result = sessionService.create(session);
 

@@ -39,9 +39,9 @@ public class AppointmentService extends BaseResourceService<Appointment> {
             return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - session "));
         }
 
-//        if (!petRepo.findById(value.getPet().getId()).isPresent()) {
-//            return Result.of(sc(SC_NOT_FOUND, "Given pet is not exist in the database"));
-//        }
+        if (!petRepo.findById(value.getPet().getId()).isPresent()) {
+            return Result.of(sc(SC_NOT_FOUND, "Given pet is not exist in the database"));
+        }
 
         value.setCustomer(SecurityHolder.getProfile());
 
