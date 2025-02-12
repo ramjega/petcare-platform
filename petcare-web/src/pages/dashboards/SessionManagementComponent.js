@@ -261,14 +261,14 @@ const SessionManagementComponent = () => {
                 ) : filteredSessions.length === 0 ? (
                     <Typography textAlign="center">No sessions found. Try different dates</Typography>
                 ) : (
-                    <Grid container spacing={3}>
+                    <Grid container spacing={3} sx={{ minWidth: "100%" }}>
                         {filteredSessions
                             .slice()
                             .sort((a, b) => a.start - b.start)
                             .map((session, index) => {
-                                const {border, text } = statusColors[session.status] || statusColors.Scheduled;
+                                const { border, text } = statusColors[session.status] || statusColors.Scheduled;
                                 return (
-                                    <Grid item key={session.id} xs={12} sm={6} md={4}>
+                                    <Grid item key={session.id} xs={12} sm={6} md={4} sx={{ minWidth: "300px" }}>
                                         <Card
                                             sx={{
                                                 borderRadius: 2,
@@ -305,7 +305,7 @@ const SessionManagementComponent = () => {
                                             </CardContent>
                                         </Card>
                                     </Grid>
-                                )
+                                );
                             })}
                     </Grid>
                 )}
@@ -398,7 +398,6 @@ const SessionManagementComponent = () => {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-
         </Box>
     );
 };

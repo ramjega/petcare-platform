@@ -21,7 +21,7 @@ import { storage } from "../../firebaseConfig";
 import PetsIcon from "@mui/icons-material/Pets";
 import ColorThief from "colorthief";
 
-const PetDetail = () => {
+const PetView = () => {
     const { petId } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -29,7 +29,6 @@ const PetDetail = () => {
 
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [imageLoading, setImageLoading] = useState(true)
 
     const cardRef = useRef(null);
 
@@ -142,28 +141,13 @@ const PetDetail = () => {
                                                 if (cardRef.current) {
                                                     cardRef.current.style.background = `linear-gradient(135deg, ${color}, rgba(0, 0, 0, 0.8))`;
                                                     cardRef.current.style.transition = "background 0.5s ease";
-                                                    setImageLoading(false);
                                                 }
                                             });
                                         }
                                     }}
-                                    onError={() => setImageLoading(false)}
                                 >
                                     {!selectedPet.imageUrl && <PetsIcon sx={{ fontSize: 60, color: "gray" }} />} {/* Show PetsIcon in gray if no image */}
                                 </Avatar>
-                                {/* Loading Spinner */}
-                                {imageLoading && (
-                                    <Box
-                                        sx={{
-                                            position: "absolute",
-                                            top: "50%",
-                                            left: "50%",
-                                            transform: "translate(-50%, -50%)",
-                                        }}
-                                    >
-                                        <CircularProgress sx={{ color: "#fff" }} />
-                                    </Box>
-                                )}
                             </Grid>
                             <Grid item xs={12} md={8}>
                                 <Typography variant="h4" fontWeight="bold" gutterBottom>
@@ -240,4 +224,4 @@ const PetDetail = () => {
     );
 };
 
-export default PetDetail;
+export default PetView;

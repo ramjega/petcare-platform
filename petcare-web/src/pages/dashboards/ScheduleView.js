@@ -1,6 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import rrulePlugin from "@fullcalendar/rrule"
+
 import {
     Alert,
     Box,
@@ -17,23 +21,20 @@ import {
     Snackbar,
     Typography
 } from "@mui/material";
-import {CheckCircle, Cancel, Delete} from "@mui/icons-material";
+import {CheckCircle, Delete} from "@mui/icons-material";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import EventIcon from '@mui/icons-material/Event';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupIcon from '@mui/icons-material/Group';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 
 import {activateSchedule, cancelSchedule, deleteSchedule, fetchScheduleById} from "../../redux/scheduleSlice";
-import { parseRRuleManually } from "../../utils/utilFunctions";
-import { statusColors } from "../../utils/colors";
+import {parseRecurrenceRule, parseRRuleManually} from "../../utils/utilFunctions";
+import {statusColors} from "../../utils/colors";
 import CancelIcon from "@mui/icons-material/Cancel";
-import DoneIcon from "@mui/icons-material/Done";
 
 const ScheduleView = () => {
     const {id} = useParams();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const {schedule, status, error} = useSelector((state) => state.schedule);
 
     const [confirmDialog, setConfirmDialog] = useState({
@@ -87,12 +88,15 @@ const ScheduleView = () => {
         }
     };
 
+
     const parsedRule = parseRRuleManually(schedule.recurringRule);
+    const events = [parseRecurrenceRule(schedule.recurringRule, schedule.status)];
+
     const {border, text} = statusColors[schedule.status] || statusColors.draft;
 
     return (
         <Box sx={{padding: 3}}>
-            {/* schedule Details Card */}
+            {/* Schedule Details Card */}
             <Card
                 sx={{
                     padding: 3,
@@ -122,39 +126,39 @@ const ScheduleView = () => {
                     }}
                 />
 
-                <CardContent sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                <CardContent sx={{display: "flex", flexDirection: "column", flexGrow: 1}}>
                     {/* Title */}
-                    <Typography variant="h6" color="primary" sx={{ mb: 2, textAlign: "center" }}>
+                    <Typography variant="h6" color="primary" sx={{mb: 2, textAlign: "center"}}>
                         Schedule Details
                     </Typography>
-                    <Divider sx={{ mb: 2 }} />
+                    <Divider sx={{mb: 2}}/>
 
                     {/* Two-column layout */}
-                    <Box sx={{ display: "flex", gap: 2 }}>
+                    <Box sx={{display: "flex", gap: 2}}>
                         {/* Left Column: Schedule Information */}
-                        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <CalendarMonthIcon sx={{ color: "#1976d2" }} /> <b>Days:</b> {parsedRule.days}
+                        <Box sx={{flex: 1, display: "flex", flexDirection: "column", gap: 1}}>
+                            <Typography sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <CalendarMonthIcon sx={{color: "#1976d2"}}/> <b>Days:</b> {parsedRule.days}
                             </Typography>
-                            <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <DateRangeIcon sx={{ color: "#2e7d32" }} /> <b>From:</b> {parsedRule.startDate}
+                            <Typography sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <DateRangeIcon sx={{color: "#2e7d32"}}/> <b>From:</b> {parsedRule.startDate}
                             </Typography>
-                            <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <DateRangeIcon sx={{ color: "#d32f2f" }} /> <b>To:</b> {parsedRule.endDate}
+                            <Typography sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <DateRangeIcon sx={{color: "#d32f2f"}}/> <b>To:</b> {parsedRule.endDate}
                             </Typography>
-                            <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <AccessTimeIcon sx={{ color: "#f57c00" }} /> <b>Start Time:</b> {parsedRule.startTime}
+                            <Typography sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <AccessTimeIcon sx={{color: "#f57c00"}}/> <b>Start Time:</b> {parsedRule.startTime}
                             </Typography>
-                            <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <GroupIcon sx={{ color: "#6a1b9a" }} /> <b>Max Allowed:</b> {schedule.maxAllowed}
+                            <Typography sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <GroupIcon sx={{color: "#6a1b9a"}}/> <b>Max Allowed:</b> {schedule.maxAllowed}
                             </Typography>
                         </Box>
 
                         {/* Right Column: Description Box & Action Buttons */}
-                        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <Box sx={{flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
                             {/* Description Box */}
-                            <Box sx={{ backgroundColor: "#e3f2fd", padding: 2, borderRadius: 2 }}>
-                                <Typography variant="body2" sx={{ color: "#1565c0" }}>
+                            <Box sx={{backgroundColor: "#e3f2fd", padding: 2, borderRadius: 2}}>
+                                <Typography variant="body2" sx={{color: "#1565c0"}}>
                                     {schedule.status === "draft" && "This schedule is currently in draft mode. Mark it as 'Activate' to start generating sessions as per the defined schedule."}
                                     {schedule.status === "active" && "This schedule is active, and sessions are being generated automatically. Mark it as 'Cancel' to stop generating sessions."}
                                     {schedule.status === "cancelled" && "This schedule has been cancelled and will no longer generate new sessions. Create a new schedule to resume session generation."}
@@ -162,7 +166,7 @@ const ScheduleView = () => {
                             </Box>
 
                             {/* Action Buttons */}
-                            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+                            <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2, mt: 2}}>
                                 {schedule.status === "draft" && (
                                     <>
                                         <Button
@@ -221,15 +225,35 @@ const ScheduleView = () => {
                             </Box>
                         </Box>
                     </Box>
+
+                    <Box
+                        sx={{
+                            backgroundColor: "#fff",
+                            padding: 3,
+                            marginTop: 3
+                        }}
+                    >
+                        <Typography variant="h6" color="primary" sx={{mb: 2}}>
+                            Session Calendar
+                        </Typography>
+                        <Divider sx={{mb: 2}}/>
+
+                        <FullCalendar
+                            plugins={[dayGridPlugin, rrulePlugin]}
+                            initialView="dayGridMonth"
+                            events={events}
+                            height="auto"
+                        />
+                    </Box>
+
                 </CardContent>
             </Card>
-
 
             {/* Confirmation Dialog */}
             <Dialog open={confirmDialog.open} onClose={() => setConfirmDialog({open: false, action: null})}>
                 <DialogTitle>Confirm Action</DialogTitle>
                 <DialogContent>
-                    <Typography>Are you sure you want to {confirmDialog.action} this schedule ?</Typography>
+                    <Typography>Are you sure you want to {confirmDialog.action} this schedule?</Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setConfirmDialog({open: false, action: null})}>Cancel</Button>
@@ -246,12 +270,16 @@ const ScheduleView = () => {
                 onClose={() => setSnackbar({...snackbar, open: false})}
                 anchorOrigin={{vertical: "top", horizontal: "center"}}
             >
-                <Alert onClose={() => setSnackbar({...snackbar, open: false})} severity={snackbar.severity}
-                       sx={{width: "100%"}}>
+                <Alert
+                    onClose={() => setSnackbar({...snackbar, open: false})}
+                    severity={snackbar.severity}
+                    sx={{width: "100%"}}
+                >
                     {snackbar.message}
                 </Alert>
             </Snackbar>
         </Box>
+
     );
 };
 

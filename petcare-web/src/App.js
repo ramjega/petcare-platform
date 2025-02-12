@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import Dashboard from './pages/Dashboard';
-import PetDetail from './pages/dashboards/PetDetail';
+import PetView from './pages/dashboards/PetView';
 import Layout from "./components/Layout";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
@@ -26,7 +26,7 @@ function App() {
                     <Route path="/profile" element={<ProfileView/>} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/dashboard/*" element={<Dashboard />} />
-                    <Route path="/dashboard/pet/:petId" element={<PetDetail />} />
+                    <Route path="/dashboard/pet/:petId" element={<PetView />} />
                     <Route path="/dashboard/schedules" element={<ScheduleManagement />} />
                     <Route path="/dashboard/session/:id" element={<SessionView />} />
                     <Route path="/dashboard/schedule/:id" element={<ScheduleView />} />

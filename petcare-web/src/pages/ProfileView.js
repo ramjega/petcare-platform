@@ -26,11 +26,18 @@ const ProfileView = () => {
         dispatch(fetchUserProfile());
     }, [dispatch]);
 
+    const roleMap = {
+        pet_owner: "Pet Owner",
+        professional: "Pet Professional",
+        admin: "Admin",
+        community: "Community"
+    };
+
+    const role = roleMap[user.role] || "Unknown";
     return (
         <Box
             sx={{
                 padding: 4,
-                backgroundColor: "#f5f5f5",
                 minHeight: "100vh",
                 display: "flex",
                 justifyContent: "center",
@@ -49,8 +56,8 @@ const ProfileView = () => {
                         textAlign: "center",
                         boxShadow: 3,
                         borderRadius: 4,
-                        background: "linear-gradient(135deg, #a1c4fd 10%, #c2e9fb 100%)",
-                        color: "#fff"
+                        backgroundColor: "#fff", // White background for the card
+                        color: "#333" // Dark text for better readability
                     }}
                 >
                     {/* Profile Header */}
@@ -61,8 +68,8 @@ const ProfileView = () => {
                                 width: 120,
                                 height: 120,
                                 margin: "0 auto",
-                                border: "4px solid #fff",
-                                boxShadow: 3
+                                border: "4px solid #ddd",
+                                boxShadow: 2
                             }}
                         />
                         <IconButton
@@ -81,36 +88,36 @@ const ProfileView = () => {
 
                     {/* User Details */}
                     <CardContent>
-                        <Typography variant="h4" fontWeight="bold" gutterBottom>
+                        <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
                             {user?.name}
                         </Typography>
                         <Chip
-                            label="Profile"
-                            sx={{ bgcolor: "#ffffff", color: "#1976d2", mb: 2 }}
+                            label={role}
+                            sx={{ bgcolor: "#1976d2", color: "#fff", mb: 2 }}
                         />
 
                         <Grid container spacing={2} sx={{ mt: 2, textAlign: "left" }}>
                             <Grid item xs={12}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <Email sx={{ fontSize: 30, color: "#fff" }} />
+                                    <Email sx={{ fontSize: 30, color: "#1976d2" }} />
                                     <Typography variant="body1">{user?.email}</Typography>
                                 </Box>
                             </Grid>
                             <Grid item xs={12}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <Phone sx={{ fontSize: 30, color: "#fff" }} />
+                                    <Phone sx={{ fontSize: 30, color: "#1976d2" }} />
                                     <Typography variant="body1">📱 {user?.mobile}</Typography>
                                 </Box>
                             </Grid>
                             <Grid item xs={12}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                    <Home sx={{ fontSize: 30, color: "#fff" }} />
+                                    <Home sx={{ fontSize: 30, color: "#1976d2" }} />
                                     <Typography variant="body1">🏠 {user?.address}</Typography>
                                 </Box>
                             </Grid>
                         </Grid>
 
-                        <Divider sx={{ my: 3, bgcolor: "#ffffff" }} />
+                        <Divider sx={{ my: 3, bgcolor: "#ddd" }} />
 
                         {/* Edit Button */}
                         <Button
