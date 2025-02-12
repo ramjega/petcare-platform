@@ -21,7 +21,7 @@ import {
     IconButton,
     InputAdornment,
     useMediaQuery,
-    useTheme
+    useTheme, Snackbar, Alert
 } from "@mui/material";
 import { Add, Group, Event, FilterList, Close } from "@mui/icons-material";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
@@ -29,6 +29,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { MobileDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUpcomingSessions, createSession, fetchSessions } from "../../redux/sessionSlice";
+import { statusColors } from "../../utils/colors";
 
 const SessionManagementComponent = () => {
     const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const SessionManagementComponent = () => {
     const [showUpcoming, setShowUpcoming] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [snackbar, setSnackbar] = useState({open: false, message: "", severity: "success"});
     const formRef = useRef(null);
 
     const theme = useTheme();
@@ -150,18 +152,13 @@ const SessionManagementComponent = () => {
             .then((result) => {
                 if (createSession.fulfilled.match(result)) {
                     setDialogOpen(false);
-                    dispatch(fetchUpcomingSessions()); // Refresh the session list
+                    setSnackbar({open: true, message: "Session created successfully!", severity: "success"});
+                    // dispatch(fetchUpcomingSessions()); // Refresh the session list
                 }
             })
             .finally(() => setLoading(false));
     };
 
-    const statusColors = {
-        Scheduled: { background: "#e3f2fd", border: "#1976d2", text: "#1976d2" },
-        Started: { background: "#e8f5e9", border: "#2e7d32", text: "#2e7d32" },
-        Completed: { background: "#efecef", border: "#090909", text: "#120719" },
-        Cancelled: { background: "#ffebee", border: "#d32f2f", text: "#d32f2f" },
-    };
 
     return (
         <Box sx={{ padding: 3, backgroundColor: "#f4f6f9", minHeight: "100vh" }}>
@@ -269,7 +266,7 @@ const SessionManagementComponent = () => {
                             .slice()
                             .sort((a, b) => a.start - b.start)
                             .map((session, index) => {
-                                const { background, border, text } = statusColors[session.status] || statusColors.Scheduled;
+                                const {border, text } = statusColors[session.status] || statusColors.Scheduled;
                                 return (
                                     <Grid item key={session.id} xs={12} sm={6} md={4}>
                                         <Card
@@ -279,7 +276,6 @@ const SessionManagementComponent = () => {
                                                 position: "relative",
                                                 transition: "0.3s",
                                                 "&:hover": { transform: "scale(1.02)", boxShadow: 6 },
-                                                background: background,
                                                 cursor: "pointer",
                                             }}
                                             onClick={() => navigate(`/dashboard/session/${session.id}`)}
@@ -298,7 +294,7 @@ const SessionManagementComponent = () => {
                                                 }}
                                             />
                                             <CardContent>
-                                                <Typography variant="h6" fontWeight="bold" color="primary">
+                                                <Typography variant="h6" color="primary">
                                                     Session {index + 1}
                                                 </Typography>
                                                 <Divider sx={{ my: 1 }} />
@@ -389,6 +385,20 @@ const SessionManagementComponent = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Snackbar Alert */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({...snackbar, open: false})}
+                anchorOrigin={{vertical: "top", horizontal: "center"}}
+            >
+                <Alert onClose={() => setSnackbar({...snackbar, open: false})} severity={snackbar.severity}
+                       sx={{width: "100%"}}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+
         </Box>
     );
 };

@@ -1,5 +1,6 @@
 import React, {useState, useRef, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 import dayjs from "dayjs";
 
 import {
@@ -22,14 +23,15 @@ import {
     InputLabel,
     Snackbar,
     Alert,
-    InputAdornment,
+    Chip,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import {useTheme} from "@mui/material/styles";
 import {Add, CheckCircle, Cancel, Delete, Event, Schedule, Group, AccessTime} from "@mui/icons-material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
-import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {MobileDatePicker} from "@mui/x-date-pickers/MobileDatePicker";
+import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
+import {statusColors} from "../../utils/colors";
 
 import {
     createSchedule,
@@ -42,18 +44,18 @@ import {
 import EventIcon from "@mui/icons-material/Event";
 
 const ScheduleManagementComponent = () => {
-    const { schedules, status, error } = useSelector((state) => state.schedule);
+    const {schedules, status, error} = useSelector((state) => state.schedule);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [confirmationDialog, setConfirmationDialog] = useState({ open: false, action: null, id: null });
-    const [selectedCard, setSelectedCard] = useState(null); // Track the selected card
+    const [confirmationDialog, setConfirmationDialog] = useState({open: false, action: null, id: null});
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+    const [snackbar, setSnackbar] = useState({open: false, message: "", severity: "success"});
     const formRef = useRef(null);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -109,7 +111,7 @@ const ScheduleManagementComponent = () => {
             }));
         }
 
-        setErrors((prev) => ({ ...prev, [field]: "" }))
+        setErrors((prev) => ({...prev, [field]: ""}))
     };
 
     const handleTimeChange = (newValue) => {
@@ -126,12 +128,12 @@ const ScheduleManagementComponent = () => {
             }));
         }
 
-        setErrors((prev) => ({ ...prev, startTime: "" }));
+        setErrors((prev) => ({...prev, startTime: ""}));
     };
 
     const handleNumberChange = (value) => {
-        setScheduleData((prev) => ({ ...prev, maxAppointments: value }));
-        setErrors((prev) => ({ ...prev, maxAppointments: "" }));
+        setScheduleData((prev) => ({...prev, maxAppointments: value}));
+        setErrors((prev) => ({...prev, maxAppointments: ""}));
     };
 
     const dayMap = {
@@ -145,14 +147,14 @@ const ScheduleManagementComponent = () => {
     };
 
     const handleDayChange = (event) => {
-        const { value, checked } = event.target;
+        const {value, checked} = event.target;
         const rruleDay = dayMap[value];
 
         setScheduleData((prev) => {
             const updatedDays = checked
                 ? [...prev.days, rruleDay]
                 : prev.days.filter((day) => day !== rruleDay);
-            return { ...prev, days: updatedDays };
+            return {...prev, days: updatedDays};
         });
     };
 
@@ -192,35 +194,39 @@ const ScheduleManagementComponent = () => {
             .then((result) => {
                 if (createSchedule.fulfilled.match(result)) {
                     setDialogOpen(false);
-                    setSnackbar({ open: true, message: "Schedule created successfully!", severity: "success" });
+                    setSnackbar({open: true, message: "Schedule created successfully!", severity: "success"});
                 }
             })
             .finally(() => setLoading(false));
     };
 
-    const handleConfirmationDialog = (action, id) => {
-        setConfirmationDialog({ open: true, action, id });
-    };
-
     const handleConfirmAction = () => {
-        const { action, id } = confirmationDialog;
+        const {action, id} = confirmationDialog;
         setLoading(true);
-        setConfirmationDialog({ open: false, action: null, id: null });
+        setConfirmationDialog({open: false, action: null, id: null});
 
         switch (action) {
             case "activate":
                 dispatch(activateSchedule(id))
-                    .then(() => setSnackbar({ open: true, message: "Schedule activated successfully!", severity: "success" }))
+                    .then(() => setSnackbar({
+                        open: true,
+                        message: "Schedule activated successfully!",
+                        severity: "success"
+                    }))
                     .finally(() => setLoading(false));
                 break;
             case "cancel":
                 dispatch(cancelSchedule(id))
-                    .then(() => setSnackbar({ open: true, message: "Schedule canceled successfully!", severity: "warning" }))
+                    .then(() => setSnackbar({
+                        open: true,
+                        message: "Schedule canceled successfully!",
+                        severity: "warning"
+                    }))
                     .finally(() => setLoading(false));
                 break;
             case "delete":
                 dispatch(deleteSchedule(id))
-                    .then(() => setSnackbar({ open: true, message: "Schedule deleted successfully!", severity: "error" }))
+                    .then(() => setSnackbar({open: true, message: "Schedule deleted successfully!", severity: "error"}))
                     .finally(() => setLoading(false));
                 break;
             default:
@@ -229,7 +235,7 @@ const ScheduleManagementComponent = () => {
     };
 
     const handleCloseConfirmationDialog = () => {
-        setConfirmationDialog({ open: false, action: null, id: null });
+        setConfirmationDialog({open: false, action: null, id: null});
     };
 
     const parseRRuleManually = (rruleString) => {
@@ -282,7 +288,7 @@ const ScheduleManagementComponent = () => {
                     : "N/A",
             };
         } catch (error) {
-            return { days: "Invalid RRule", startDate: "-", endDate: "-", startTime: "-" };
+            return {days: "Invalid RRule", startDate: "-", endDate: "-", startTime: "-"};
         }
     };
 
@@ -297,21 +303,17 @@ const ScheduleManagementComponent = () => {
         }
     };
 
-    const handleCardClick = (id) => {
-        setSelectedCard(selectedCard === id ? null : id); // Toggle selected card
-    };
-
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Box>
-                <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Box sx={{padding: 3, backgroundColor: "#f4f6f9", minHeight: "100vh"}}>
+                <Box sx={{display: "flex", justifyContent: "flex-end", mb: 3}}>
                     <Button
                         variant="contained"
-                        startIcon={<Add />}
+                        startIcon={<Add/>}
                         onClick={handleOpenDialog}
                         sx={{
                             backgroundColor: "#1976d2",
-                            "&:hover": { backgroundColor: "#1565c0" },
+                            "&:hover": {backgroundColor: "#1565c0"},
                             width: isMobile ? "100%" : "auto",
                         }}
                     >
@@ -320,108 +322,56 @@ const ScheduleManagementComponent = () => {
                 </Box>
 
                 {status === "loading" ? (
-                    <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+                    <CircularProgress sx={{display: "block", margin: "20px auto"}}/>
                 ) : error ? (
                     <Typography color="error" textAlign="center">{error}</Typography>
                 ) : schedules.length === 0 ? (
                     <Typography textAlign="center">No schedules.</Typography>
                 ) : (
-                    <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
+                    <Grid container spacing={3}>
                         {schedules.map((schedule, index) => {
                             const parsedRule = parseRRuleManually(schedule.recurringRule);
-
+                            const {border, text} = statusColors[schedule.status] || statusColors.draft;
                             return (
-                                <Grid item key={index} xs={12} sm={6} md={4}>
+                                <Grid item key={schedule.id} xs={12} sm={6} md={4}>
                                     <Card
                                         sx={{
                                             borderRadius: 2,
-                                            boxShadow: 2,
-                                            backgroundColor: "#ffffff",
-                                            cursor: "pointer",
+                                            boxShadow: 3,
                                             position: "relative",
+                                            transition: "0.3s",
+                                            "&:hover": {transform: "scale(1.02)", boxShadow: 6},
+                                            cursor: "pointer",
                                         }}
-                                        onClick={() => handleCardClick(schedule.id)}
+                                        onClick={() => navigate(`/dashboard/schedule/${schedule.id}`)}
                                     >
-                                        {/* Oval-Shaped Status Indicator */}
-                                        <Box
+                                        <Chip
+                                            label={schedule.status}
+                                            variant="outlined"
                                             sx={{
                                                 position: "absolute",
                                                 top: 8,
                                                 right: 8,
-                                                width: 80,
-                                                height: 28, // Increased height for more padding
-                                                borderRadius: "14px", // Adjusted for oval shape
-                                                border: `2px solid ${getStatusColor(schedule.status)}`,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                backgroundColor: "transparent",
-                                                padding: "4px 8px", // Added padding
+                                                fontWeight: "bold",
+                                                borderRadius: 16,
+                                                borderColor: border,
+                                                color: text,
                                             }}
-                                        >
-                                            <Typography
-                                                variant="body2"
-                                                sx={{
-                                                    color: getStatusColor(schedule.status),
-                                                    fontWeight: "bold",
-                                                    textTransform: "uppercase",
-                                                    fontSize: "0.75rem",
-                                                }}
-                                            >
-                                                {schedule.status}
-                                            </Typography>
-                                        </Box>
+                                        />
 
                                         <CardContent>
-                                            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                                            <Typography variant="h6" color="primary">
                                                 Schedule {index + 1}
                                             </Typography>
-                                            <Typography variant="body2" sx={{ color: "#757575" }}>Max Allowed: {schedule.maxAllowed}</Typography>
-                                            <Divider sx={{ my: 1 }} />
+                                            <Divider sx={{my: 1}}/>
                                             <Typography variant="body2">📅 Days: <b>{parsedRule.days}</b></Typography>
-                                            <Typography variant="body2">📆 From: <b>{parsedRule.startDate}</b></Typography>
+                                            <Typography variant="body2">📆
+                                                From: <b>{parsedRule.startDate}</b></Typography>
                                             <Typography variant="body2">📆 To: <b>{parsedRule.endDate}</b></Typography>
-                                            <Typography variant="body2">⏰ Start Time: <b>{parsedRule.startTime}</b></Typography>
-                                            {selectedCard === schedule.id && (
-                                                <>
-                                                    <Divider sx={{ my: 1 }} />
-                                                    <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
-                                                        {schedule.status === "draft" && (
-                                                            <>
-                                                                <Button
-                                                                    variant="outlined"
-                                                                    color="success"
-                                                                    startIcon={<CheckCircle />}
-                                                                    onClick={() => handleConfirmationDialog("activate", schedule.id)}
-                                                                    sx={{ flex: 1 }}
-                                                                >
-                                                                    Activate
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outlined"
-                                                                    color="error"
-                                                                    startIcon={<Delete />}
-                                                                    onClick={() => handleConfirmationDialog("delete", schedule.id)}
-                                                                    sx={{ flex: 1 }}
-                                                                >
-                                                                    Delete
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                        {schedule.status === "active" && (
-                                                            <Button
-                                                                variant="outlined"
-                                                                color="error"
-                                                                startIcon={<Cancel />}
-                                                                onClick={() => handleConfirmationDialog("cancel", schedule.id)}
-                                                                sx={{ flex: 1 }}
-                                                            >
-                                                                Cancel
-                                                            </Button>
-                                                        )}
-                                                    </Box>
-                                                </>
-                                            )}
+                                            <Typography variant="body2">⏰ Start
+                                                Time: <b>{parsedRule.startTime}</b></Typography>
+                                            <Typography variant="body2">👥 Max
+                                                Allowed: <b>{schedule.maxAllowed}</b></Typography>
                                         </CardContent>
                                     </Card>
                                 </Grid>
@@ -432,27 +382,28 @@ const ScheduleManagementComponent = () => {
 
                 {/* Schedule Creation Dialog */}
                 <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-                    <DialogTitle sx={{ textAlign: "center", fontWeight: "bold", color: "#1976d2" }}>
+                    <DialogTitle sx={{textAlign: "center", fontWeight: "bold", color: "#1976d2"}}>
                         Create Recurring Schedule
                     </DialogTitle>
-                    <DialogContent ref={formRef} sx={{ maxHeight: "70vh", overflowY: "auto" }}>
-                        <InputLabel sx={{ mt: 2, fontWeight: "bold" }}>Select Days</InputLabel>
+                    <DialogContent ref={formRef} sx={{maxHeight: "70vh", overflowY: "auto"}}>
+                        <InputLabel sx={{mt: 2, fontWeight: "bold"}}>Select Days</InputLabel>
                         <Grid container spacing={1}>
                             {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
                                 <Grid item xs={6} sm={4} key={day}>
                                     <FormControlLabel
-                                        control={<Checkbox value={day} onChange={handleDayChange} checked={scheduleData.days.includes(dayMap[day])} />}
+                                        control={<Checkbox value={day} onChange={handleDayChange}
+                                                           checked={scheduleData.days.includes(dayMap[day])}/>}
                                         label={day}
                                     />
                                 </Grid>
                             ))}
                         </Grid>
 
-                        <Grid container spacing={2} sx={{ mt: 2 }}>
+                        <Grid container spacing={2} sx={{mt: 2}}>
                             <Grid item xs={6}>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Box sx={{ mr: 1 }}>
-                                        <EventIcon color="action" />
+                                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                    <Box sx={{mr: 1}}>
+                                        <EventIcon color="action"/>
                                     </Box>
                                     <MobileDatePicker
                                         label="From"
@@ -464,16 +415,16 @@ const ScheduleManagementComponent = () => {
                                                 fullWidth
                                                 error={!!errors.startDate}
                                                 helperText={errors.startDate}
-                                                InputLabelProps={{ shrink: true }}
+                                                InputLabelProps={{shrink: true}}
                                             />
                                         )}
                                     />
                                 </Box>
                             </Grid>
                             <Grid item xs={6}>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Box sx={{ mr: 1 }}>
-                                        <EventIcon color="action" />
+                                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                    <Box sx={{mr: 1}}>
+                                        <EventIcon color="action"/>
                                     </Box>
                                     <MobileDatePicker
                                         label="To"
@@ -492,11 +443,11 @@ const ScheduleManagementComponent = () => {
                             </Grid>
                         </Grid>
 
-                        <Grid container spacing={2} sx={{ mt: 2 }}>
+                        <Grid container spacing={2} sx={{mt: 2}}>
                             <Grid item xs={6}>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Box sx={{ mr: 1 }}>
-                                        <AccessTime color="action" />
+                                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                    <Box sx={{mr: 1}}>
+                                        <AccessTime color="action"/>
                                     </Box>
 
                                     <MobileTimePicker
@@ -515,9 +466,9 @@ const ScheduleManagementComponent = () => {
                                 </Box>
                             </Grid>
                             <Grid item xs={6}>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Box sx={{ mr: 1 }}>
-                                        <Group color="action" />
+                                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                    <Box sx={{mr: 1}}>
+                                        <Group color="action"/>
                                     </Box>
                                     <TextField
                                         label="Max Bookings"
@@ -535,7 +486,7 @@ const ScheduleManagementComponent = () => {
                     <DialogActions>
                         <Button onClick={handleCloseDialog}>Cancel</Button>
                         <Button variant="contained" onClick={handleSubmit} disabled={loading}>
-                            {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Save"}
+                            {loading ? <CircularProgress size={24} sx={{color: "white"}}/> : "Save"}
                         </Button>
                     </DialogActions>
                 </Dialog>
@@ -553,13 +504,15 @@ const ScheduleManagementComponent = () => {
                     </DialogActions>
                 </Dialog>
 
-                {/* Snackbar for Notifications */}
+                {/* Snackbar Alert */}
                 <Snackbar
                     open={snackbar.open}
-                    autoHideDuration={6000}
-                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    autoHideDuration={3000}
+                    onClose={() => setSnackbar({...snackbar, open: false})}
+                    anchorOrigin={{vertical: "top", horizontal: "center"}}
                 >
-                    <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    <Alert onClose={() => setSnackbar({...snackbar, open: false})} severity={snackbar.severity}
+                           sx={{width: "100%"}}>
                         {snackbar.message}
                     </Alert>
                 </Snackbar>

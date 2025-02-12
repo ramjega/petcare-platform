@@ -63,7 +63,6 @@ public class SessionController {
         }
     }
 
-
     @PostMapping(value = "/api/session/create")
     public ResponseEntity register(@RequestBody Session value) {
         Result<Session> result = service.create(value);

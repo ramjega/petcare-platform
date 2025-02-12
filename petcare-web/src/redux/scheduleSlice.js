@@ -38,20 +38,33 @@ export const fetchSchedules = createAsyncThunk(
     }
 );
 
+export const fetchScheduleById = createAsyncThunk(
+    "schedule/fetchScheduleById",
+    async (scheduleId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.get(`${API_URL}/${scheduleId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch session");
+        }
+    }
+);
+
 export const activateSchedule = createAsyncThunk(
     "schedule/activateSchedule",
     async (scheduleId, { rejectWithValue, getState, dispatch }) => {
         try {
             const token = getState().auth.token;
-            await axios.post(`${API_URL}/activate/${scheduleId}`, {}, {
+            const response = await axios.post(`${API_URL}/activate/${scheduleId}`, {}, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            // Refresh schedules after activation
-            dispatch(fetchSchedules());
-            return scheduleId;
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || "Failed to activate schedule");
         }
@@ -63,15 +76,13 @@ export const cancelSchedule = createAsyncThunk(
     async (scheduleId, { rejectWithValue, getState, dispatch }) => {
         try {
             const token = getState().auth.token;
-            await axios.post(`${API_URL}/cancel/${scheduleId}`, {}, {
+            const response = await axios.post(`${API_URL}/cancel/${scheduleId}`, {}, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            // Refresh schedules after cancellation
-            dispatch(fetchSchedules());
-            return scheduleId;
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || "Failed to cancel schedule");
         }
@@ -83,15 +94,13 @@ export const deleteSchedule = createAsyncThunk(
     async (scheduleId, { rejectWithValue, getState, dispatch }) => {
         try {
             const token = getState().auth.token;
-            await axios.delete(`${API_URL}/delete/${scheduleId}`, {
+            const response = await axios.delete(`${API_URL}/delete/${scheduleId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            // Refresh schedules after deletion
-            dispatch(fetchSchedules());
-            return scheduleId;
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || "Failed to delete schedule");
         }
@@ -102,6 +111,7 @@ const scheduleSlice = createSlice({
     name: "schedule",
     initialState: {
         schedules: [],
+        schedule: null,
         status: "idle",
         error: null,
     },
@@ -134,15 +144,28 @@ const scheduleSlice = createSlice({
                 state.error = action.payload;
             })
 
+            // Fetch Session by id
+            .addCase(fetchScheduleById.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchScheduleById.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.schedule = action.payload;
+            })
+            .addCase(fetchScheduleById.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
             // Activate Schedule
             .addCase(activateSchedule.pending, (state) => {
                 state.status = "loading";
             })
             .addCase(activateSchedule.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.schedules = state.schedules.map((schedule) =>
-                    schedule.id === action.payload ? { ...schedule, status: "active" } : schedule
-                );
+                if (state.schedule?.id === action.payload.id) {
+                    state.schedule.status = "active";
+                }
             })
             .addCase(activateSchedule.rejected, (state, action) => {
                 state.status = "failed";
@@ -155,9 +178,9 @@ const scheduleSlice = createSlice({
             })
             .addCase(cancelSchedule.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.schedules = state.schedules.map((schedule) =>
-                    schedule.id === action.payload ? { ...schedule, status: "cancelled" } : schedule
-                );
+                if (state.schedule?.id === action.payload.id) {
+                    state.schedule.status = "cancelled";
+                }
             })
             .addCase(cancelSchedule.rejected, (state, action) => {
                 state.status = "failed";

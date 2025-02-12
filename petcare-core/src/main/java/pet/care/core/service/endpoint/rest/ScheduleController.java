@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pet.care.core.domain.entity.Pet;
 import pet.care.core.domain.entity.Schedule;
+import pet.care.core.domain.entity.Session;
 import pet.care.core.domain.type.ScheduleStatusValue;
 import pet.care.core.domain.wrapper.ListHolder;
 import pet.care.core.repo.jpa.ScheduleRepo;
@@ -28,6 +29,17 @@ public class ScheduleController {
     public ScheduleController(ApplicationContext context) {
         this.service = context.getBean(ScheduleService.class);
         this.repo = context.getBean(ScheduleRepo.class);
+    }
+
+    @GetMapping(value = "/api/schedule/{id}")
+    public ResponseEntity fetchById(@PathVariable Long id) {
+        Optional<Schedule> schedule = repo.findById(id);
+
+        if (schedule.isPresent()) {
+            return response(Result.of(schedule.get()));
+        } else {
+            return response(Result.of("Schedule not found for id ["+id+"]!"));
+        }
     }
 
     @GetMapping(value = "/api/schedule/my")

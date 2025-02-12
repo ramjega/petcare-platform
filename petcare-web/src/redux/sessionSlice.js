@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import {fetchAppointmentsBySession} from "./appointmentSlice";
 
 const BASE_URL = "http://localhost:8000/api/session";
 
@@ -38,7 +37,7 @@ export const fetchUpcomingSessions = createAsyncThunk("sessions/fetchUpcoming", 
 export const createSession = createAsyncThunk("sessions/createSession", async (sessionData, { rejectWithValue, getState }) => {
     try {
         const token = getState().auth.token;
-        const response = await axios.post(`${BASE_URL}/session/create`, sessionData, {
+        const response = await axios.post(`${BASE_URL}/create`, sessionData, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }

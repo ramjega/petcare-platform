@@ -10,6 +10,7 @@ import HomePage from "./pages/HomePage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ProfileView from "./pages/ProfileView";
 import ScheduleManagement from "./pages/dashboards/ScheduleManagement";
+import ScheduleView from "./pages/dashboards/ScheduleView";
 import SessionView from "./pages/dashboards/SessionView";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                     <Route path="/dashboard/pet/:petId" element={<PetDetail />} />
                     <Route path="/dashboard/schedules" element={<ScheduleManagement />} />
                     <Route path="/dashboard/session/:id" element={<SessionView />} />
+                    <Route path="/dashboard/schedule/:id" element={<ScheduleView />} />
                 </Routes>
             </Layout>
         </Router>
