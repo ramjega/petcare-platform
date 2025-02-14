@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import pet.care.core.domain.type.ProfileRole;
 import pet.care.core.domain.type.ProfileStatus;
+import pet.care.core.domain.type.Speciality;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,7 +20,8 @@ import javax.validation.constraints.Size;
 @Table(indexes = {
         @Index(columnList = "mobile", unique = true),
         @Index(columnList = "email"),
-        @Index(columnList = "role")
+        @Index(columnList = "role"),
+        @Index(columnList = "speciality")
 })
 
 public class Profile extends ResourceEntity {
@@ -46,19 +48,15 @@ public class Profile extends ResourceEntity {
 
     private ProfileStatus status = ProfileStatus.active;
 
-    @Size(max = 100, message = "Name cannot exceed 100 characters")
     private String name;
 
-    @Size(max = 100, message = "Email cannot exceed 100 characters")
     private String email;
 
-    @Size(max = 255, message = "Address cannot exceed 255 characters")
     private String address;
 
     private ProfileRole role;
 
-    @Size(max = 100, message = "Specialization cannot exceed 100 characters")
-    private String specialization;
+    private Speciality speciality;
 
     private String imageUrl;
 

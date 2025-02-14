@@ -33,7 +33,7 @@ const ProfileView = () => {
         community: "Community"
     };
 
-    const role = roleMap[user.role] || "Unknown";
+    const role = user ? (roleMap[user.role] || "Unknown") : "Unknown";
     return (
         <Box
             sx={{

@@ -153,7 +153,6 @@ const SessionManagementComponent = () => {
                 if (createSession.fulfilled.match(result)) {
                     setDialogOpen(false);
                     setSnackbar({open: true, message: "Session created successfully!", severity: "success"});
-                    // dispatch(fetchUpcomingSessions()); // Refresh the session list
                 }
             })
             .finally(() => setLoading(false));

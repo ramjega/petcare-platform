@@ -4,6 +4,21 @@ import axios from "axios";
 // Base API URL
 const BASE_URL = "http://localhost:8000/api/appointment";
 
+export const fetchMyAppointments = createAsyncThunk(
+    "appointments/fetchMy",
+    async (sessionId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.get(`${BASE_URL}/my`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return response.data.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.error || "Failed to fetch appointments");
+        }
+    }
+);
+
 // Fetch Appointments by Session ID
 export const fetchAppointmentsBySession = createAsyncThunk(
     "appointments/fetchBySession",
@@ -16,6 +31,20 @@ export const fetchAppointmentsBySession = createAsyncThunk(
             return response.data.data;
         } catch (error) {
             return rejectWithValue(error.response?.data?.error || "Failed to fetch appointments");
+        }
+    }
+);
+
+// Bookg Appointment
+export const bookAppointment = createAsyncThunk("appointments/book", async (appointmentData, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.post(`${BASE_URL}/book`, appointmentData, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.error || "Failed to book appointment");
         }
     }
 );
@@ -90,6 +119,28 @@ const appointmentSlice = createSlice({
             .addCase(fetchAppointmentsBySession.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
+            })
+
+            // Fetch my Appointments
+            .addCase(fetchMyAppointments.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchMyAppointments.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.appointments = action.payload;
+            })
+            .addCase(fetchMyAppointments.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
+            // Book Appointment
+            .addCase(bookAppointment.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(bookAppointment.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.appointments[state.appointments.length] = action.payload
             })
 
             // Attend Appointment

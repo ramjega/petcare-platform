@@ -1,15 +1,17 @@
 package pet.care.core.service.module;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import pet.care.core.domain.entity.Appointment;
 import pet.care.core.domain.entity.Session;
 import pet.care.core.domain.type.AppointmentStatus;
 import pet.care.core.domain.type.SessionStatus;
 import pet.care.core.repo.jpa.AppointmentRepo;
+import pet.care.core.repo.jpa.SessionRepo;
 import pet.care.core.service.common.Result;
 import pet.care.core.service.endpoint.auth.SecurityHolder;
+import pet.care.core.service.endpoint.rest.dto.SessionSearchDto;
+import pet.care.core.service.util.TimeUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,19 +24,37 @@ import static pet.care.core.service.common.TxStatusCodes.SC_VALIDATION_FAILED;
 public class SessionService extends BaseResourceService<Session> {
 
     private final AppointmentRepo appointmentRepo;
+    private final SessionRepo sessionRepo;
 
-    public SessionService(ApplicationContext ctx, JpaRepository<Session, Long> repo, AppointmentRepo appointmentRepo) {
-        super(ctx, Session.class, repo);
+    public SessionService(ApplicationContext ctx, SessionRepo sessionRepo, AppointmentRepo appointmentRepo) {
+        super(ctx, Session.class, sessionRepo);
         this.appointmentRepo = appointmentRepo;
+        this.sessionRepo = sessionRepo;
+    }
+
+    public List<Session> searchSessions(SessionSearchDto dto) {
+        long start = TimeUtils.startTimeOfLocalGivenTime(dto.getFrom());
+        long end = TimeUtils.startTimeOfLocalGivenTime(dto.getTo()) + TimeUtils.daysInMills(1);;
+        return sessionRepo.findByFilters(
+                start,
+                end,
+                dto.getProfessionalId(),
+                dto.getSpeciality(),
+                dto.getOrganizationId(),
+                dto.getCityId()
+        );
     }
 
     @Override
     public Result<Session> create(Session value) {
-        if (value.getStart() == null || value.getMaxAllowed() == null) {
-            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - start | maxAllowed"));
+        if (value.getStart() == null || value.getMaxAllowed() == null || value.getOrganization() == null) {
+            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - start | maxAllowed | organization"));
         }
 
-        value.setProfessional(SecurityHolder.getProfile());
+        if (value.getProfessional() == null) {
+            value.setProfessional(SecurityHolder.getProfile());
+        }
+
         return super.create(value);
     }
 

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pet.care.core.domain.entity.Pet;
 import pet.care.core.domain.entity.Profile;
+import pet.care.core.domain.type.ProfileRole;
 import pet.care.core.repo.jpa.ProfileRepo;
 import pet.care.core.service.common.ResourcePatch;
 import pet.care.core.service.common.Result;
@@ -33,6 +34,11 @@ public class ProfileController {
         this.service = context.getBean(ProfileService.class);
         this.repo = context.getBean(ProfileRepo.class);
         this.authController = context.getBean(AuthenticationController.class);
+    }
+
+    @GetMapping(value = "/api/profile/professionals")
+    public ResponseEntity<List<Profile>> getProfessionals() {
+        return ResponseEntity.ok(repo.findAllByRole(ProfileRole.professional));
     }
 
     @GetMapping(value = "/api/profile/me")

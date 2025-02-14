@@ -10,9 +10,11 @@ import pet.care.core.domain.wrapper.ListHolder;
 import pet.care.core.repo.jpa.SessionRepo;
 import pet.care.core.service.common.Result;
 import pet.care.core.service.endpoint.auth.SecurityHolder;
+import pet.care.core.service.endpoint.rest.dto.SessionSearchDto;
 import pet.care.core.service.module.SessionService;
 import pet.care.core.service.util.TimeUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -61,6 +63,12 @@ public class SessionController {
             ListHolder<Session> holder = new ListHolder<>(repo.findByProfessionalId(SecurityHolder.getProfileId()));
             return response(Result.of(holder));
         }
+    }
+
+    @PostMapping(value = "/api/session/search")
+    public ResponseEntity<List<Session>> search(@RequestBody SessionSearchDto dto) {
+        List<Session> sessions = service.searchSessions(dto);
+        return ResponseEntity.ok(sessions);
     }
 
     @PostMapping(value = "/api/session/create")

@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPets } from "../../redux/petSlice";
 import { Pets, EventNote, AddCircleOutline, CalendarToday } from "@mui/icons-material";
+import PetDialog from "./PetDialog";
 
 const DashboardHome = () => {
     const dispatch = useDispatch();
     const { pets, status } = useSelector((state) => state.pet);
-    const [appointments, setAppointments] = useState([]); // Placeholder for future data
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [appointments, setAppointments] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,32 +18,125 @@ const DashboardHome = () => {
     }, [dispatch]);
 
     return (
-        <Box sx={{ padding: { xs: 2, md: 4 }, backgroundColor: "#f0f4f8", minHeight: "100vh" }}>
-            <Typography variant="h5" fontWeight="bold" sx={{ textAlign: "center", mb: 3 }}>
-                Welcome to Your Pet Dashboard 🏡
-            </Typography>
+        <Box
+            sx={{
+                padding: { xs: 2, md: 4 },
+                backgroundColor: "#f0f4f8",
+                minHeight: "100vh",
+                background: "linear-gradient(135deg, #f0f4f8 0%, #dfe9f3 100%)",
+            }}
+        >
+            <Box
+                sx={{
+                    textAlign: "center",
+                    mb: 4,
+                    padding: { xs: 2, md: 3 },
+                    background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+                    borderRadius: 3,
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+                    color: "#fff",
+                }}
+            >
+                <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                    sx={{
+                        fontSize: { xs: "1.75rem", md: "2.5rem" },
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 2,
+                    }}
+                >
+                    <Pets sx={{ fontSize: { xs: 40, md: 50 }, color: "#ffeb3b" }} />
+                    Pet Dashboard
+                </Typography>
+                <Typography
+                    variant="subtitle1"
+                    sx={{
+                        mt: 1,
+                        fontSize: { xs: "0.9rem", md: "1.1rem" },
+                        color: "rgba(255, 255, 255, 0.9)",
+                    }}
+                >
+                    Manage your pets, appointments, and schedules with ease 🐾
+                </Typography>
+            </Box>
 
             {/* Loading Indicator */}
             {status === "loading" ? (
                 <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
             ) : (
-                <Grid container spacing={3} justifyContent="center">
-                    {/* Your Pets Section */}
-                    <Grid item xs={12} md={6}>
-                        <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
+                <Grid container spacing={3} justifyContent="left">
+                    {/* Add a New Pet Section */}
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Card
+                            sx={{
+                                borderRadius: 4,
+                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                                p: 2,
+                                background: "linear-gradient(135deg, #4caf50 0%, #388e3c 100%)",
+                                color: "#fff",
+                                transition: "transform 0.3s ease-in-out",
+                                "&:hover": { transform: "scale(1.05)" },
+                            }}
+                        >
                             <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                <Avatar sx={{ bgcolor: "#1976d2", width: 50, height: 50 }}>
-                                    <Pets sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ bgcolor: "rgba(255, 255, 255, 0.2)", width: 50, height: 50 }}>
+                                    <AddCircleOutline sx={{ fontSize: 30, color: "#fff" }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h6" fontWeight="bold">Your Pets</Typography>
+                                    <Typography variant="h6" fontWeight="bold">Add a New Pet</Typography>
+                                    <Typography>Register your pet and track</Typography>
+                                </Box>
+                            </CardContent>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                sx={{
+                                    mt: 2,
+                                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                                    color: "#fff",
+                                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.3)" },
+                                }}
+                                onClick={() => setDialogOpen(true)}
+                            >
+                                Add Pet
+                            </Button>
+                        </Card>
+                    </Grid>
+
+                    {/* Your Pets Section */}
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Card
+                            sx={{
+                                borderRadius: 4,
+                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                                p: 2,
+                                background: "linear-gradient(135deg, #1976d2 0%, #115293 100%)",
+                                color: "#fff",
+                                transition: "transform 0.3s ease-in-out",
+                                "&:hover": { transform: "scale(1.05)" },
+                            }}
+                        >
+                            <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                <Avatar sx={{ bgcolor: "rgba(255, 255, 255, 0.2)", width: 50, height: 50 }}>
+                                    <Pets sx={{ fontSize: 30, color: "#fff" }} />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h6" fontWeight="bold">My Pets</Typography>
                                     <Typography>{pets.length} registered pets</Typography>
                                 </Box>
                             </CardContent>
                             <Button
                                 variant="contained"
                                 fullWidth
-                                sx={{ mt: 2, bgcolor: "#1976d2", "&:hover": { bgcolor: "#115293" } }}
+                                sx={{
+                                    mt: 2,
+                                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                                    color: "#fff",
+                                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.3)" },
+                                }}
                                 onClick={() => navigate("/dashboard/pets")}
                             >
                                 Manage Pets
@@ -49,40 +144,27 @@ const DashboardHome = () => {
                         </Card>
                     </Grid>
 
-                    {/* Add a New Pet Section */}
-                    <Grid item xs={12} md={6}>
-                        <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
-                            <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                <Avatar sx={{ bgcolor: "#4caf50", width: 50, height: 50 }}>
-                                    <AddCircleOutline sx={{ fontSize: 30 }} />
-                                </Avatar>
-                                <Box>
-                                    <Typography variant="h6" fontWeight="bold">Add a New Pet</Typography>
-                                    <Typography>Register your pet and track their health</Typography>
-                                </Box>
-                            </CardContent>
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                sx={{ mt: 2, bgcolor: "#4caf50", "&:hover": { bgcolor: "#388e3c" } }}
-                                onClick={() => navigate("/dashboard/pets")}
-                            >
-                                Add Pet
-                            </Button>
-                        </Card>
-                    </Grid>
-
                     {/* Upcoming Appointments Section */}
-                    <Grid item xs={12} md={6}>
-                        <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Card
+                            sx={{
+                                borderRadius: 4,
+                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                                p: 2,
+                                background: "linear-gradient(135deg, #ff9800 0%, #e65100 100%)",
+                                color: "#fff",
+                                transition: "transform 0.3s ease-in-out",
+                                "&:hover": { transform: "scale(1.05)" },
+                            }}
+                        >
                             <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                <Avatar sx={{ bgcolor: "#ff9800", width: 50, height: 50 }}>
-                                    <EventNote sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ bgcolor: "rgba(255, 255, 255, 0.2)", width: 50, height: 50 }}>
+                                    <EventNote sx={{ fontSize: 30, color: "#fff" }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h6" fontWeight="bold">Upcoming Appointments</Typography>
+                                    <Typography variant="h6" fontWeight="bold">Appointments</Typography>
                                     {appointments.length === 0 ? (
-                                        <Typography>No upcoming appointments</Typography>
+                                        <Typography>Not scheduled yet</Typography>
                                     ) : (
                                         <Typography>{appointments.length} scheduled</Typography>
                                     )}
@@ -91,7 +173,12 @@ const DashboardHome = () => {
                             <Button
                                 variant="contained"
                                 fullWidth
-                                sx={{ mt: 2, bgcolor: "#ff9800", "&:hover": { bgcolor: "#e65100" } }}
+                                sx={{
+                                    mt: 2,
+                                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                                    color: "#fff",
+                                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.3)" },
+                                }}
                                 onClick={() => navigate("/dashboard/appointments")}
                             >
                                 View Appointments
@@ -100,21 +187,36 @@ const DashboardHome = () => {
                     </Grid>
 
                     {/* View Calendar Section */}
-                    <Grid item xs={12} md={6}>
-                        <Card sx={{ borderRadius: 3, boxShadow: 3, p: 2 }}>
+                    <Grid item xs={12} md={6} lg={4}>
+                        <Card
+                            sx={{
+                                borderRadius: 4,
+                                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                                p: 2,
+                                background: "linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%)",
+                                color: "#fff",
+                                transition: "transform 0.3s ease-in-out",
+                                "&:hover": { transform: "scale(1.05)" },
+                            }}
+                        >
                             <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                <Avatar sx={{ bgcolor: "#9c27b0", width: 50, height: 50 }}>
-                                    <CalendarToday sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ bgcolor: "rgba(255, 255, 255, 0.2)", width: 50, height: 50 }}>
+                                    <CalendarToday sx={{ fontSize: 30, color: "#fff" }} />
                                 </Avatar>
                                 <Box>
                                     <Typography variant="h6" fontWeight="bold">View Calendar</Typography>
-                                    <Typography>Check your pet-related schedules</Typography>
+                                    <Typography>Check your schedules</Typography>
                                 </Box>
                             </CardContent>
                             <Button
                                 variant="contained"
                                 fullWidth
-                                sx={{ mt: 2, bgcolor: "#9c27b0", "&:hover": { bgcolor: "#6a1b9a" } }}
+                                sx={{
+                                    mt: 2,
+                                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                                    color: "#fff",
+                                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.3)" },
+                                }}
                                 onClick={() => navigate("/dashboard/calendar")}
                             >
                                 Open Calendar
@@ -123,6 +225,14 @@ const DashboardHome = () => {
                     </Grid>
                 </Grid>
             )}
+            {/* Add Pet Dialog */}
+            <PetDialog
+                open={dialogOpen}
+                onClose={() => setDialogOpen(false)}
+                onSubmit={() => {
+                }}
+                mode={"create"}
+            />
         </Box>
     );
 };

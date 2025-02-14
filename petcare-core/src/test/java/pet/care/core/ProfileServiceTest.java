@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import pet.care.core.domain.entity.Profile;
 import pet.care.core.domain.type.ProfileRole;
+import pet.care.core.domain.type.Speciality;
 import pet.care.core.repo.jpa.ProfileRepo;
 import pet.care.core.service.common.Result;
 import pet.care.core.service.endpoint.auth.JwtRequest;
@@ -53,14 +54,14 @@ public class ProfileServiceTest {
         Result<Profile> petOwner = factory.createPetOwner("Jegan", "0779010066", "Test@123");
         assertTrue(petOwner.code().isSuccess());
 
-        Result<Profile> professional = factory.createProfessional("Sriram", "0775228995", "Test@123");
+        Result<Profile> professional = factory.createProfessional("Sriram", "0775228995", "Test@123", Speciality.Veterinary);
         assertTrue(professional.code().isSuccess());
 
-        Result<Profile> community = factory.createProfessional("Community", "0777970070", "Test@123");
+        Result<Profile> community = factory.createCommunity("Community", "0777970070", "Test@123");
         assertTrue(community.code().isSuccess());
 
         // number duplicate test
-        Result<Profile> community2 = factory.createProfessional("Community", "0777970070", "Test@123");
+        Result<Profile> community2 = factory.createCommunity("Community", "0777970070", "Test@123");
         assertTrue(community2.code().isFailure());
     }
 
@@ -128,7 +129,7 @@ public class ProfileServiceTest {
         Result<Profile> petOwner = factory.createPetOwner("Jegan", "0779010066", "Test@123");
         assertTrue(petOwner.code().isSuccess());
 
-        Result<Profile> professional = factory.createProfessional("Sriram", "0775228995", "Test@123");
+        Result<Profile> professional = factory.createProfessional("Sriram", "0775228995", "Test@123", Speciality.Veterinary);
         assertTrue(professional.code().isSuccess());
 
         Optional<Profile> adminFound = repo.findOneByMobile("0776914220");
@@ -152,7 +153,7 @@ public class ProfileServiceTest {
         // clearing previously created user
         repo.findOneByMobile("0775228995").ifPresent(userProfile -> repo.delete(userProfile));
 
-        Result<Profile> professional = factory.createProfessional("Sriram", "0775228995", "Test@123");
+        Result<Profile> professional = factory.createProfessional("Sriram", "0775228995", "Test@123", Speciality.Veterinary);
         assertTrue(professional.code().isSuccess());
 
         JwtRequest authenticationRequest = new JwtRequest(professional.value().getMobile(), "Test@123");

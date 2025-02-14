@@ -27,6 +27,8 @@ public class Appointment extends ResourceEntity {
 
     private AppointmentStatus status = booked;
 
+    private String note;
+
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "id")
     private Pet pet;

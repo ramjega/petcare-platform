@@ -22,8 +22,6 @@ public class Session extends ResourceEntity {
     @GeneratedValue(generator = "session_id_generator")
     protected Long id;
 
-    private String hospital;
-
     private Long maxAllowed;
 
     public Long getNextToken() {
@@ -50,5 +48,8 @@ public class Session extends ResourceEntity {
     @JoinColumn(name = "scheduleId", referencedColumnName = "id")
     private Schedule schedule;
 
+    @ManyToOne
+    @JoinColumn(name = "organizationId", referencedColumnName = "id")
+    private Organization organization;
 }
 

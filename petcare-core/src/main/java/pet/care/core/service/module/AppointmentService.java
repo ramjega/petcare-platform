@@ -4,6 +4,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import pet.care.core.domain.entity.Appointment;
+import pet.care.core.domain.entity.Pet;
 import pet.care.core.domain.entity.Session;
 import pet.care.core.domain.type.AppointmentStatus;
 import pet.care.core.repo.jpa.AppointmentRepo;
@@ -11,6 +12,7 @@ import pet.care.core.repo.jpa.PetRepo;
 import pet.care.core.repo.jpa.SessionRepo;
 import pet.care.core.service.common.Result;
 import pet.care.core.service.endpoint.auth.SecurityHolder;
+import pet.care.core.service.endpoint.rest.dto.AppointmentDto;
 
 import java.util.Optional;
 
@@ -33,22 +35,31 @@ public class AppointmentService extends BaseResourceService<Appointment> {
         this.petRepo = ctx.getBean(PetRepo.class);
     }
 
-    @Override
-    public Result<Appointment> create(Appointment value) {
-        if (isNull(value.getSession()) || isNull(value.getSession().getId())) {
-            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - session "));
+    public Result<Appointment> book(AppointmentDto dto) {
+
+        if (dto.getSessionId() == null || dto.getPetId() == null || isNull(dto.getNote())) {
+            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - session | pet | note"));
         }
 
-        if (!petRepo.findById(value.getPet().getId()).isPresent()) {
-            return Result.of(sc(SC_NOT_FOUND, "Given pet is not exist in the database"));
+        Optional<Session> sessionFound = sessionRepo.findById(dto.getSessionId());
+        if (!sessionFound.isPresent()) {
+            return Result.of(sc(SC_NOT_FOUND, "Session not found for id [" + dto.getSessionId() + "]"));
         }
+
+        Optional<Pet> petFound = petRepo.findById(dto.getPetId());
+        if (!petFound.isPresent()) {
+            return Result.of(sc(SC_NOT_FOUND, "Pet not found for id [" + dto.getPetId() + "]"));
+        }
+
+        Session session = sessionFound.get();
+        Pet pet = petFound.get();
+
+        Appointment value = new Appointment();
+        value.setNote(dto.getNote());
+        value.setSession(session);
+        value.setPet(pet);
 
         value.setCustomer(SecurityHolder.getProfile());
-
-        Optional<Session> sessionFound = sessionRepo.findById(value.getSession().getId());
-
-        if (sessionFound.isPresent()) {
-            Session session = sessionFound.get();
 
             long bookedAppointments = repo.countAppointmentByStatusIsNotAndSessionId(AppointmentStatus.cancelled, value.getSession().getId());
 
@@ -66,9 +77,6 @@ public class AppointmentService extends BaseResourceService<Appointment> {
                 return Result.of(sc(SC_VALIDATION_FAILED, "Session is full!"));
             }
 
-        } else {
-            return Result.of(sc(SC_NOT_FOUND, "Given session is not exist in the database"));
-        }
     }
 
     public Result<Appointment> attend(Long id) {

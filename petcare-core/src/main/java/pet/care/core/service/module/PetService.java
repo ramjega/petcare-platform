@@ -1,7 +1,6 @@
 package pet.care.core.service.module;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import pet.care.core.domain.entity.Pet;
 import pet.care.core.repo.jpa.PetRepo;
@@ -14,12 +13,10 @@ import java.util.List;
 
 @Service
 public class PetService extends BaseResourceService<Pet> {
-    private final PetRepo repo;
     private final PetRepo petRepo;
 
-    public PetService(ApplicationContext ctx, JpaRepository<Pet, Long> repo, PetRepo petRepo) {
-        super(ctx, Pet.class, repo);
-        this.repo = ctx.getBean(PetRepo.class);
+    public PetService(ApplicationContext ctx, PetRepo petRepo) {
+        super(ctx, Pet.class, petRepo);
         this.petRepo = petRepo;
     }
 
@@ -29,7 +26,10 @@ public class PetService extends BaseResourceService<Pet> {
             return Result.of(StatusCode.sc(TxStatusCodes.SC_VALIDATION_FAILED, "Missing required field - name | type | gender"));
         }
 
-        value.setOwner(SecurityHolder.getProfile());
+        if (value.getOwner() == null) {
+            value.setOwner(SecurityHolder.getProfile());
+        }
+
         return super.create(value);
     }
 

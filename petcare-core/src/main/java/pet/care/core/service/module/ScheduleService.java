@@ -47,11 +47,13 @@ public class ScheduleService extends BaseResourceService<Schedule> {
     @Override
     public Result<Schedule> create(Schedule value) {
 
-        if (value.getRecurringRule() == null || value.getMaxAllowed() == null) {
-            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - recurringRule | maxAllowed"));
+        if (value.getRecurringRule() == null || value.getMaxAllowed() == null || value.getOrganization() == null) {
+            return Result.of(sc(SC_VALIDATION_FAILED, "Missing required fields! - recurringRule | maxAllowed | organization"));
         }
 
-        value.setProfessional(SecurityHolder.getProfile());
+        if (value.getProfessional() == null) {
+            value.setProfessional(SecurityHolder.getProfile());
+        }
 
         Result<Schedule> result = super.create(value);
 
@@ -107,7 +109,7 @@ public class ScheduleService extends BaseResourceService<Schedule> {
 
                     Session session = new Session();
                     session.setStart(dateTime.getTimestamp());
-                    session.setHospital(schedule.getHospital());
+                    session.setOrganization(schedule.getOrganization());
                     session.setMaxAllowed(schedule.getMaxAllowed());
                     session.setSchedule(schedule);
                     session.setProfessional(schedule.getProfessional());

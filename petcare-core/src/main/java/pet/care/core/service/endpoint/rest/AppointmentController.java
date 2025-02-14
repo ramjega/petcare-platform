@@ -10,11 +10,14 @@ import pet.care.core.domain.wrapper.ListHolder;
 import pet.care.core.repo.jpa.AppointmentRepo;
 import pet.care.core.service.common.Result;
 import pet.care.core.service.endpoint.auth.SecurityHolder;
+import pet.care.core.service.endpoint.rest.dto.AppointmentDto;
 import pet.care.core.service.module.AppointmentService;
 import pet.care.core.service.util.TimeUtils;
 
+import static java.util.Objects.isNull;
 import static pet.care.core.service.common.Converter.response;
-
+import static pet.care.core.service.common.StatusCode.sc;
+import static pet.care.core.service.common.TxStatusCodes.SC_VALIDATION_FAILED;
 
 @RestController
 @CrossOrigin
@@ -41,8 +44,8 @@ public class AppointmentController {
     }
 
     @PostMapping(value = "/api/appointment/book")
-    public ResponseEntity register(@RequestBody Appointment value) {
-        Result<Appointment> result = service.create(value);
+    public ResponseEntity book(@RequestBody AppointmentDto dto) {
+        Result<Appointment> result = service.book(dto);
         return response(result);
     }
 

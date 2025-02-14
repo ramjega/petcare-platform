@@ -33,12 +33,28 @@ export const updateUserProfile = createAsyncThunk("profile/updateUserProfile", a
     }
 });
 
+// fetch professionals
+export const fetchProfessionals = createAsyncThunk("profile/fetchProfessionals", async (_, { rejectWithValue, getState }) => {
+    try {
+        const token = getState().auth.token; // Get auth token from Redux state
+        const response = await axios.get(`${API_URL}/profile/professionals`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch profile");
+    }
+});
+
 // **Profile Slice**
 const profileSlice = createSlice({
     name: "profile",
     initialState: {
         user: null,
         status: "idle", // idle | loading | succeeded | failed
+        professionals: [],
         error: null,
     },
     reducers: {},
@@ -53,6 +69,18 @@ const profileSlice = createSlice({
                 state.user = action.payload;
             })
             .addCase(fetchUserProfile.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
+            .addCase(fetchProfessionals.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchProfessionals.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.professionals = action.payload;
+            })
+            .addCase(fetchProfessionals.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })

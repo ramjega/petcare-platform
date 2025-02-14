@@ -39,6 +39,8 @@ public class Schedule extends ResourceEntity {
     @JoinColumn(name = "professionalId", referencedColumnName = "id")
     private Profile professional;
 
-    private String hospital; // optional for veterinarians usage
+    @ManyToOne
+    @JoinColumn(name = "organizationId", referencedColumnName = "id")
+    private Organization organization;
 }
 

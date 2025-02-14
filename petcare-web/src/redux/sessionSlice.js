@@ -19,6 +19,21 @@ export const fetchSessions = createAsyncThunk("sessions/fetchSessions", async (q
     }
 );
 
+export const searchSessions = createAsyncThunk("sessions/searchSessions", async (searchReq = {}, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.post(`${BASE_URL}/search`, searchReq, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch sessions");
+        }
+    }
+);
+
 
 export const fetchUpcomingSessions = createAsyncThunk("sessions/fetchUpcoming", async (_, { rejectWithValue, getState }) => {
     try {
@@ -144,6 +159,19 @@ const sessionSlice = createSlice({
                 state.sessions = action.payload;
             })
             .addCase(fetchSessions.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
+            // Search Sessions
+            .addCase(searchSessions.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(searchSessions.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.sessions = action.payload;
+            })
+            .addCase(searchSessions.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })

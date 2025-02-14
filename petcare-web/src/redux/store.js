@@ -6,6 +6,8 @@ import profileReducer from './profileSlice';
 import scheduleReducer from "./scheduleSlice";
 import sessionReducer from "./sessionSlice";
 import appointmentReducer from "./appointmentSlice";
+import organizationReducer from "./organizationSlice";
+import cityReducer from "./citySlice";
 
 export const store = configureStore({
     reducer: {
@@ -15,6 +17,8 @@ export const store = configureStore({
         schedule: scheduleReducer,
         session: sessionReducer,
         appointment: appointmentReducer,
+        organization: organizationReducer,
+        city: cityReducer,
 
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger)
