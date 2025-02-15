@@ -45,7 +45,7 @@ const AppointmentCard = ({ appointment }) => {
                         sx={{
                             width: { xs: 60, sm: 80 },
                             height: { xs: 60, sm: 80 },
-                            border: "3px solid #1976d2",
+                            border: "2px solid #1976d2",
                             boxShadow: 2,
                             backgroundColor: "#e3f2fd",
                         }}

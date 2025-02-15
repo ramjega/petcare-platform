@@ -24,9 +24,9 @@ import {
     useTheme, Snackbar, Alert
 } from "@mui/material";
 import { Add, Group, Event, FilterList, Close } from "@mui/icons-material";
-import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { MobileDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUpcomingSessions, createSession, fetchSessions } from "../../redux/sessionSlice";
 import { statusColors } from "../../utils/colors";
@@ -62,7 +62,7 @@ const SessionManagementComponent = () => {
 
     useEffect(() => {
         fetchSessionsByDate(selectedDate);
-    }, [fetchSessionsByDate]);
+    }, [fetchSessionsByDate, selectedDate]);
 
     const handleDateChange = (newDate) => {
         setSelectedDate(newDate);
@@ -193,7 +193,7 @@ const SessionManagementComponent = () => {
             >
                 {/* Date Picker */}
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <MobileDatePicker
+                    <DatePicker
                         label="Select Date"
                         value={selectedDate}
                         onChange={handleDateChange}
@@ -332,7 +332,7 @@ const SessionManagementComponent = () => {
                         {/* Start Time Picker */}
                         <Grid item xs={12}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <MobileDateTimePicker
+                                <DateTimePicker
                                     label="Start Time"
                                     value={sessionData.start}
                                     onChange={handleDateTimeChange}

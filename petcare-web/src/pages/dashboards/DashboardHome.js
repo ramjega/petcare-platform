@@ -31,9 +31,9 @@ const DashboardHome = () => {
                     textAlign: "center",
                     mb: 4,
                     padding: { xs: 2, md: 3 },
-                    background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+                    background: "linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)",
                     borderRadius: 3,
-                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
                     color: "#fff",
                 }}
             >
@@ -48,7 +48,7 @@ const DashboardHome = () => {
                         gap: 2,
                     }}
                 >
-                    <Pets sx={{ fontSize: { xs: 40, md: 50 }, color: "#ffeb3b" }} />
+                    <Pets sx={{ fontSize: { xs: 40, md: 50 }, color: "#FFEB3B" }} />
                     Pet Dashboard
                 </Typography>
                 <Typography
@@ -62,7 +62,6 @@ const DashboardHome = () => {
                     Manage your pets, appointments, and schedules with ease 🐾
                 </Typography>
             </Box>
-
             {/* Loading Indicator */}
             {status === "loading" ? (
                 <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
@@ -229,8 +228,6 @@ const DashboardHome = () => {
             <PetDialog
                 open={dialogOpen}
                 onClose={() => setDialogOpen(false)}
-                onSubmit={() => {
-                }}
                 mode={"create"}
             />
         </Box>

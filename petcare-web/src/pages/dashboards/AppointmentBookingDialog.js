@@ -1,22 +1,30 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
-    Dialog, DialogTitle, DialogContent, DialogActions, Button,
-    Grid, TextField, Typography, CircularProgress, Avatar, Box, Divider
+    Avatar,
+    Box,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Grid,
+    TextField,
+    Typography
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { bookAppointment } from "../../redux/appointmentSlice";
-import PetsIcon from "@mui/icons-material/Pets";
-import PersonIcon from "@mui/icons-material/Person";
+import {useDispatch, useSelector} from "react-redux";
+import {bookAppointment} from "../../redux/appointmentSlice";
 import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import NoteIcon from "@mui/icons-material/Note";
 import {Pets} from "@mui/icons-material";
 
-const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar}) => {
+const AppointmentBookingDialog = ({open, onClose, bookingRequest, setSnackbar}) => {
     const dispatch = useDispatch();
     const [note, setNote] = useState("");
     const [error, setError] = useState("");
-    const { loading } = useSelector((state) => state.appointment);
+    const {loading} = useSelector((state) => state.appointment);
 
     const handleBookAppointment = () => {
         if (!note.trim()) {
@@ -45,11 +53,11 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle sx={{ textAlign: "center", fontWeight: "bold", bgcolor: "#1976d2", color: "#fff", mb: 2 }}>
+            <DialogTitle sx={{textAlign: "center", fontWeight: "bold", bgcolor: "#1976d2", color: "#fff", mb: 2}}>
                 Confirm Appointment
             </DialogTitle>
 
-            <DialogContent sx={{ maxHeight: "70vh", overflowY: "auto", px: 3 }}>
+            <DialogContent sx={{maxHeight: "70vh", overflowY: "auto", px: 3}}>
                 {bookingRequest && (
                     <Box
                         sx={{
@@ -61,26 +69,27 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                         }}
                     >
                         {/* Left Side: Pet Details */}
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
                             <Avatar
                                 src={bookingRequest.petImageUrl || ""}
-                                sx={{ width: 50, height: 50, bgcolor: "#eee" }}
+                                sx={{width: 50, height: 50, bgcolor: "#eee"}}
                             >
-                                {!bookingRequest.petImageUrl && <Pets sx={{ fontSize: 30, color: "#1976d2" }} />}
+                                {!bookingRequest.petImageUrl && <Pets sx={{fontSize: 30, color: "#1976d2"}}/>}
                             </Avatar>
                             <Typography variant="h6" fontWeight="bold">{bookingRequest.petName}</Typography>
                         </Box>
                     </Box>
                 )}
 
-                <Divider sx={{ my: 2 }} />
+                <Divider sx={{my: 2}}/>
 
                 {/* Appointment Details */}
                 {bookingRequest && (
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Avatar src={bookingRequest.professionalImageUrl || ""} sx={{bgcolor: "#eee", color: "#1976d2"}} />
+                            <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <Avatar src={bookingRequest.professionalImageUrl || ""}
+                                        sx={{bgcolor: "#eee", color: "#1976d2"}}/>
                                 <Typography>
                                     <b>{bookingRequest.professional}</b> ({bookingRequest.speciality})
                                 </Typography>
@@ -88,8 +97,8 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                         </Grid>
 
                         <Grid item xs={12}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <EventIcon sx={{ color: "#2e7d32" }} />
+                            <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <EventIcon sx={{color: "#2e7d32"}}/>
                                 <Typography>
                                     <b>Date & Time:</b> {bookingRequest.dateTime}
                                 </Typography>
@@ -97,8 +106,8 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                         </Grid>
 
                         <Grid item xs={12}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <LocationOnIcon sx={{ color: "#d32f2f" }} />
+                            <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <LocationOnIcon sx={{color: "#d32f2f"}}/>
                                 <Typography>
                                     <b>Location:</b> {bookingRequest.organization}, {bookingRequest.city}
                                 </Typography>
@@ -107,8 +116,8 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
 
                         {/* Appointment Note Input */}
                         <Grid item xs={12}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <NoteIcon sx={{ color: "#f57c00" }} />
+                            <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                                <NoteIcon sx={{color: "#f57c00"}}/>
                                 <Typography><b>Appointment Note</b></Typography>
                             </Box>
                             <TextField
@@ -120,25 +129,25 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                                 onChange={(e) => setNote(e.target.value)}
                                 error={!!error}
                                 helperText={error}
-                                sx={{ mt: 1 }}
+                                sx={{mt: 1}}
                             />
                         </Grid>
                     </Grid>
                 )}
             </DialogContent>
 
-            <DialogActions sx={{ px: 3, pb: 2}}>
-                <Button onClick={onClose} sx={{ color: "#555" }}>Cancel</Button>
+            <DialogActions sx={{px: 3, pb: 2}}>
+                <Button onClick={onClose} sx={{color: "#555"}}>Cancel</Button>
                 <Button
                     variant="contained"
                     onClick={handleBookAppointment}
                     disabled={loading}
                     sx={{
                         bgcolor: "#1976d2",
-                        "&:hover": { bgcolor: "#115293" }
+                        "&:hover": {bgcolor: "#115293"}
                     }}
                 >
-                    {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Confirm"}
+                    {loading ? <CircularProgress size={24} sx={{color: "white"}}/> : "Confirm"}
                 </Button>
             </DialogActions>
         </Dialog>

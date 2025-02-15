@@ -137,20 +137,22 @@ const SignupPage = () => {
     return (
         <Box
             sx={{
-                height: "100vh",
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: "flex-start",
                 backgroundColor: "#f0f4f8",
-                padding: { xs: 2, md: 0 }, // Adds padding on small screens
+                padding: { xs: 2, md: 4 },
+                minHeight: "100vh",
+                flexGrow: 1,
             }}
         >
             <Paper
                 elevation={6}
                 sx={{
-                    padding: {xs: 3, md: 5}, // Adjust padding for smaller screens
+                    padding: { xs: 3, md: 5 },
+                    marginTop: { xs: "60px", md: "80px" },
                     borderRadius: 4,
-                    maxWidth: {xs: "90%", sm: 450}, // Limits width dynamically
+                    maxWidth: { xs: "90%", sm: 420 },
                     width: "100%",
                     textAlign: "center",
                     backgroundColor: "#ffffff",

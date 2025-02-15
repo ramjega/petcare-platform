@@ -25,32 +25,30 @@ import {
 } from "@mui/material";
 import {ArrowBack, Delete, Edit, Pets as PetsIcon} from "@mui/icons-material";
 import {useDispatch, useSelector} from "react-redux";
-import {deletePet, fetchPetById, updatePet} from "../../redux/petSlice";
+import {deletePet, fetchPetById} from "../../redux/petSlice";
 import {useNavigate, useParams} from "react-router-dom";
 import PetDialog from "./PetDialog";
-import {getDownloadURL, ref, uploadBytesResumable} from "firebase/storage";
-import {storage} from "../../firebaseConfig";
 import ColorThief from "colorthief";
-import { Line } from "react-chartjs-2";
+import {Line} from "react-chartjs-2";
 
 import {
-    Chart as ChartJS,
     CategoryScale,
+    Chart as ChartJS,
+    Legend,
     LinearScale,
-    PointElement,
     LineElement,
+    PointElement,
     Title,
-    Tooltip as ChartTooltip,
-    Legend
+    Tooltip as ChartTooltip
 } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ChartTooltip, Legend);
 
 const PetView = () => {
-    const { petId } = useParams();
+    const {petId} = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { selectedPet, status } = useSelector((state) => state.pet);
+    const {selectedPet, status} = useSelector((state) => state.pet);
 
     const [bookDialogOpen, setBookDialogOpen] = useState(false);
     const [appointmentType, setAppointmentType] = useState("");
@@ -76,7 +74,7 @@ const PetView = () => {
         console.log("Booked an appointment:", appointmentType);
         setBookDialogOpen(false);
     };
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [petDialogOpen, setPetDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const cardRef = useRef(null);
@@ -84,39 +82,6 @@ const PetView = () => {
     useEffect(() => {
         dispatch(fetchPetById(petId));
     }, [dispatch, petId]);
-
-    const handleUpdatePet = async (updatedPet, petImage) => {
-        setLoading(true);
-        try {
-            let imageUrl = updatedPet.imageUrl;
-            if (petImage) {
-                const storageRef = ref(storage, `pets/${petImage.name}`);
-                const uploadTask = uploadBytesResumable(storageRef, petImage);
-
-                await new Promise((resolve, reject) => {
-                    uploadTask.on(
-                        "state_changed",
-                        null,
-                        reject,
-                        async () => {
-                            imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                            resolve();
-                        }
-                    );
-                });
-            }
-
-            dispatch(updatePet({ id: petId, ...updatedPet, imageUrl })).then((result) => {
-                if (updatePet.fulfilled.match(result)) {
-                    dispatch(fetchPetById(petId));
-                    setEditDialogOpen(false);
-                }
-            });
-        } catch (error) {
-            console.error("Error uploading image or adding pet:", error);
-        }
-        setLoading(false);
-    };
 
     const handleDeletePet = () => {
         if (window.confirm("Are you sure you want to delete this pet?")) {
@@ -145,14 +110,14 @@ const PetView = () => {
     };
 
     return (
-        <Box sx={{ padding: { xs: 2, md: 4 }, backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+        <Box sx={{padding: {xs: 2, md: 4}, backgroundColor: "#f5f5f5", minHeight: "100vh"}}>
             {/* Back Button */}
-            <IconButton onClick={() => navigate("/dashboard/pets")} sx={{ mb: 2 }}>
-                <ArrowBack sx={{ fontSize: 30, color: "#1976d2" }} />
+            <IconButton onClick={() => navigate("/dashboard/pets")} sx={{mb: 2}}>
+                <ArrowBack sx={{fontSize: 30, color: "#1976d2"}}/>
             </IconButton>
 
             {status === "loading" ? (
-                <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+                <CircularProgress sx={{display: "block", margin: "20px auto"}}/>
             ) : selectedPet ? (
                 <>
                     {/* Pet Detail Card */}
@@ -164,13 +129,11 @@ const PetView = () => {
                             padding: 3,
                             color: "#fff",
                             marginBottom: 3,
-                            background: selectedPet.imageUrl
-                                ? "linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8))"
-                                : "linear-gradient(135deg, #a1c4fd 10%, #c2e9fb 100%)"
+                            background: "linear-gradient(135deg, #90caf9, #42a5f5, #1e88e5)"
                         }}
                     >
                         <Grid container spacing={3} alignItems="center">
-                            <Grid item xs={12} md={4} sx={{ textAlign: "center" }}>
+                            <Grid item xs={12} md={4} sx={{textAlign: "center"}}>
                                 <Avatar
                                     src={selectedPet.imageUrl || undefined}
                                     sx={{
@@ -192,46 +155,53 @@ const PetView = () => {
                                         }
                                     }}
                                 >
-                                    {!selectedPet.imageUrl && <PetsIcon sx={{ fontSize: 60, color: "gray" }} />}
+                                    {!selectedPet.imageUrl && <PetsIcon sx={{fontSize: 60, color: "gray"}}/>}
                                 </Avatar>
                             </Grid>
                             <Grid item xs={12} md={8}>
                                 <Typography variant="h4" fontWeight="bold" gutterBottom>
                                     {selectedPet.name}
                                 </Typography>
-                                <Chip label={selectedPet.type} sx={{ bgcolor: "#ffffff", color: "#000", mb: 2 }} />
+                                <Chip label={selectedPet.type} sx={{bgcolor: "#ffffff", color: "#000", mb: 2}}/>
                                 <Typography variant="body1">📌 Breed: {selectedPet.breed}</Typography>
                                 <Typography variant="body1">⚥ Gender: {selectedPet.gender}</Typography>
                                 <Typography variant="body1">🎨 Color: {selectedPet.color}</Typography>
-                                <Typography variant="body1">🎂 Birth Date: {selectedPet.birthDate ? new Date(selectedPet.birthDate).toLocaleDateString() : "Unknown"}</Typography>
+                                <Typography variant="body1">🎂 Birth
+                                    Date: {selectedPet.birthDate ? new Date(selectedPet.birthDate).toLocaleDateString() : "Unknown"}</Typography>
                             </Grid>
                         </Grid>
 
-                        <Divider sx={{ my: 3, bgcolor: "#ffffff" }} />
+                        <Divider sx={{my: 3, bgcolor: "#ffffff"}}/>
 
                         {/* Action Buttons */}
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                        <Box sx={{display: "flex", justifyContent: "flex-end", gap: 1}}>
                             <Tooltip title="Edit Pet">
-                                <IconButton onClick={() => setEditDialogOpen(true)} sx={{ backgroundColor: "#ffffff88", "&:hover": { backgroundColor: "#ffffffaa" } }}>
-                                    <Edit sx={{ color: "#1976d2" }} />
+                                <IconButton onClick={() => setPetDialogOpen(true)} sx={{
+                                    backgroundColor: "#ffffff88",
+                                    "&:hover": {backgroundColor: "#ffffffaa"}
+                                }}>
+                                    <Edit sx={{color: "#1976d2"}}/>
                                 </IconButton>
                             </Tooltip>
 
                             <Tooltip title="Delete Pet">
-                                <IconButton onClick={handleDeletePet} sx={{ backgroundColor: "#ffffff88", "&:hover": { backgroundColor: "#ffffffaa" } }}>
-                                    <Delete sx={{ color: "red" }} />
+                                <IconButton onClick={handleDeletePet} sx={{
+                                    backgroundColor: "#ffffff88",
+                                    "&:hover": {backgroundColor: "#ffffffaa"}
+                                }}>
+                                    <Delete sx={{color: "red"}}/>
                                 </IconButton>
                             </Tooltip>
                         </Box>
                     </Card>
 
-                     {/*Growth & Weight Tracker */}
-                    <Card sx={{ mt: 4, p: 3, boxShadow: 3 }}>
+                    {/*Growth & Weight Tracker */}
+                    <Card sx={{mt: 4, p: 3, boxShadow: 3}}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                             📊 Growth & Weight Tracker
                         </Typography>
-                        <Divider sx={{ my: 2 }} />
-                        <Line data={weightData} />
+                        <Divider sx={{my: 2}}/>
+                        <Line data={weightData}/>
                     </Card>
 
                     {/* Pet Gallery & Memories */}
@@ -244,29 +214,31 @@ const PetView = () => {
                     {/*</Card>*/}
 
                     {/* Daily Activity Log */}
-                    <Card sx={{ mt: 4, p: 3, boxShadow: 3 }}>
+                    <Card sx={{mt: 4, p: 3, boxShadow: 3}}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                             🏃‍♂️ Daily Activity Log
                         </Typography>
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{my: 2}}/>
                         <Typography>🏋️ Exercise: 30 mins ✅</Typography>
                         <Typography>🚶 Walk Distance: 2 km ✅</Typography>
                         <Typography>💤 Sleep: 8 hours</Typography>
                     </Card>
 
                     {/* 📌 Section: Past & Future Visits */}
-                    <Card sx={{ mt: 4, p: 3, boxShadow: 3 }}>
+                    <Card sx={{mt: 4, p: 3, boxShadow: 3}}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                             📅 Professional Visits
                         </Typography>
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{my: 2}}/>
 
                         {/* Visits List */}
                         {appointments.length > 0 ? (
                             <List>
                                 {appointments.map((appointment) => (
                                     <ListItem key={appointment.id}>
-                                        <ListItemText primary={`${appointment.type} on ${new Date(appointment.date).toLocaleDateString()}`} secondary={`Status: ${appointment.status}`} />
+                                        <ListItemText
+                                            primary={`${appointment.type} on ${new Date(appointment.date).toLocaleDateString()}`}
+                                            secondary={`Status: ${appointment.status}`}/>
                                     </ListItem>
                                 ))}
                             </List>
@@ -275,24 +247,27 @@ const PetView = () => {
                         )}
 
                         {/* Book New Appointment */}
-                        <Button variant="contained" sx={{ mt: 2, backgroundColor: "#4caf50", "&:hover": { backgroundColor: "#388e3c" } }} onClick={() => setBookDialogOpen(true)}>
+                        <Button variant="contained"
+                                sx={{mt: 2, backgroundColor: "#4caf50", "&:hover": {backgroundColor: "#388e3c"}}}
+                                onClick={() => setBookDialogOpen(true)}>
                             ➕ Book New Appointment
                         </Button>
                     </Card>
 
                     {/* 📌 Section: Vaccinations & Medications */}
-                    <Card sx={{ mt: 4, p: 3, boxShadow: 3 }}>
+                    <Card sx={{mt: 4, p: 3, boxShadow: 3}}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                             💉 Vaccinations & Medications
                         </Typography>
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{my: 2}}/>
 
                         {/* Vaccination List */}
                         {vaccinations.length > 0 ? (
                             <List>
                                 {vaccinations.map((vaccine) => (
                                     <ListItem key={vaccine.id}>
-                                        <ListItemText primary={`${vaccine.name} - ${vaccine.status}`} secondary={`Date: ${new Date(vaccine.date).toLocaleDateString()}`} />
+                                        <ListItemText primary={`${vaccine.name} - ${vaccine.status}`}
+                                                      secondary={`Date: ${new Date(vaccine.date).toLocaleDateString()}`}/>
                                     </ListItem>
                                 ))}
                             </List>
@@ -302,11 +277,11 @@ const PetView = () => {
                     </Card>
 
                     {/* 📌 Section: Special Notes & Dietary Plans */}
-                    <Card sx={{ mt: 4, p: 3, boxShadow: 3 }}>
+                    <Card sx={{mt: 4, p: 3, boxShadow: 3}}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                             📝 Special Notes & Dietary Plans
                         </Typography>
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{my: 2}}/>
 
                         {specialNotes ? (
                             <Typography>{specialNotes}</Typography>
@@ -316,11 +291,11 @@ const PetView = () => {
                     </Card>
 
                     {/* Pet Social & Community Engagement */}
-                    <Card sx={{ mt: 4, p: 3, boxShadow: 3 }}>
+                    <Card sx={{mt: 4, p: 3, boxShadow: 3}}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                             🗓️ Upcoming Pet Events
                         </Typography>
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{my: 2}}/>
                         <Typography>🐶 Dog Show - March 15</Typography>
                         <Typography>🏆 Best Pet Contest - April 10</Typography>
                     </Card>
@@ -329,7 +304,7 @@ const PetView = () => {
                     <Dialog open={bookDialogOpen} onClose={() => setBookDialogOpen(false)}>
                         <DialogTitle>Book Appointment</DialogTitle>
                         <DialogContent>
-                            <FormControl fullWidth sx={{ mt: 2 }}>
+                            <FormControl fullWidth sx={{mt: 2}}>
                                 <InputLabel>Select Type</InputLabel>
                                 <Select value={appointmentType} onChange={(e) => setAppointmentType(e.target.value)}>
                                     <MenuItem value="Medical">Medical</MenuItem>
@@ -344,16 +319,17 @@ const PetView = () => {
                         </DialogActions>
                     </Dialog>
 
-                    <Card sx={{ mt: 4, p: 3, boxShadow: 3 }}>
+                    <Card sx={{mt: 4, p: 3, boxShadow: 3}}>
                         <Typography variant="h6" fontWeight="bold" color="primary">
                             🏥 Health History
                         </Typography>
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{my: 2}}/>
                         {healthRecords.length > 0 ? (
                             <List>
                                 {healthRecords.map((record) => (
                                     <ListItem key={record.id}>
-                                        <ListItemText primary={`${record.condition} - ${record.date}`} secondary={record.notes} />
+                                        <ListItemText primary={`${record.condition} - ${record.date}`}
+                                                      secondary={record.notes}/>
                                     </ListItem>
                                 ))}
                             </List>
@@ -364,10 +340,14 @@ const PetView = () => {
 
 
                     {/* Edit Pet Dialog */}
-                    <PetDialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} onSubmit={handleUpdatePet} pet={selectedPet} mode={"edit"} loading={loading} />
+                    <PetDialog
+                        open={petDialogOpen}
+                        onClose={() => setPetDialogOpen(false)}
+                        pet={selectedPet}
+                        mode={"edit"}/>
                 </>
             ) : (
-                <Typography variant="h6" textAlign="center" sx={{ mt: 4 }}>
+                <Typography variant="h6" textAlign="center" sx={{mt: 4}}>
                     Pet not found. 🐾
                 </Typography>
             )}

@@ -16,7 +16,7 @@ import {
     useTheme,
     Divider
 } from "@mui/material";
-import {Add, AddCircleOutline, Event, LocationOn, Person} from "@mui/icons-material";
+import {Add, AddCircleOutline, Event, EventAvailable, LocationOn, Person, Pets} from "@mui/icons-material";
 import {fetchMyAppointments} from "../../redux/appointmentSlice";
 import {fetchPets} from "../../redux/petSlice";
 import {fetchOrganizations} from "../../redux/organizationSlice";
@@ -171,22 +171,36 @@ const ManageAppointments = () => {
                 sx={{
                     textAlign: "center",
                     mb: 4,
-                    padding: {xs: 2, md: 3},
-                    background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+                    padding: { xs: 2, md: 3 },
+                    background: "linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)",
                     borderRadius: 3,
-                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
                     color: "#fff",
                 }}
             >
                 <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                    sx={{
+                        fontSize: { xs: "1.2rem", md: "2rem" },
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 2,
+                    }}
+                >
+                    <EventAvailable sx={{ fontSize: { xs: 40, md: 50 }, color: "#FFEB3B" }} />
+                    Appointment Dashboard
+                </Typography>
+                <Typography
                     variant="subtitle1"
                     sx={{
                         mt: 1,
-                        fontSize: {xs: "0.9rem", md: "1.1rem"},
+                        fontSize: { xs: "0.9rem", md: "1.1rem" },
                         color: "rgba(255, 255, 255, 0.9)",
                     }}
                 >
-                    Keep track of your pet's health and wellness 🐾
+                    Keep track of your upcoming and past appointments with ease 📅
                 </Typography>
             </Box>
 

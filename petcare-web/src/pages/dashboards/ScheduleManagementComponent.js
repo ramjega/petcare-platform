@@ -1,42 +1,41 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import dayjs from "dayjs";
 
 import {
-    Grid,
+    Alert,
+    Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    Divider,
-    Button,
+    Checkbox,
+    Chip,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    TextField,
+    Divider,
     FormControlLabel,
-    Checkbox,
-    CircularProgress,
-    Box,
-    useMediaQuery,
+    Grid,
     InputLabel,
     Snackbar,
-    Alert,
-    Chip,
+    TextField,
+    Typography,
+    useMediaQuery,
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
-import {Add, CheckCircle, Cancel, Delete, Event, Schedule, Group, AccessTime} from "@mui/icons-material";
+import {AccessTime, Add, Group} from "@mui/icons-material";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {MobileDatePicker} from "@mui/x-date-pickers/MobileDatePicker";
-import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
+import {DatePicker, TimePicker} from "@mui/x-date-pickers";
 import {statusColors} from "../../utils/colors";
 
 import {
-    createSchedule,
     activateSchedule,
     cancelSchedule,
+    createSchedule,
     deleteSchedule,
     fetchSchedules
 } from "../../redux/scheduleSlice";
@@ -292,17 +291,6 @@ const ScheduleManagementComponent = () => {
         }
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case "active":
-                return "#4caf50";
-            case "canceled":
-                return "#f44336";
-            default:
-                return "#9e9e9e";
-        }
-    };
-
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Box sx={{padding: 3, backgroundColor: "#f4f6f9", minHeight: "100vh"}}>
@@ -405,7 +393,7 @@ const ScheduleManagementComponent = () => {
                                     <Box sx={{mr: 1}}>
                                         <EventIcon color="action"/>
                                     </Box>
-                                    <MobileDatePicker
+                                    <DatePicker
                                         label="From"
                                         value={pickerValues.startDate}
                                         onChange={(newValue) => handleDateChange("startDate", newValue)}
@@ -426,7 +414,7 @@ const ScheduleManagementComponent = () => {
                                     <Box sx={{mr: 1}}>
                                         <EventIcon color="action"/>
                                     </Box>
-                                    <MobileDatePicker
+                                    <DatePicker
                                         label="To"
                                         value={pickerValues.endDate}
                                         onChange={(newValue) => handleDateChange("endDate", newValue)}
@@ -450,7 +438,7 @@ const ScheduleManagementComponent = () => {
                                         <AccessTime color="action"/>
                                     </Box>
 
-                                    <MobileTimePicker
+                                    <TimePicker
                                         label="Time"
                                         value={pickerValues.startTime}
                                         onChange={handleTimeChange}

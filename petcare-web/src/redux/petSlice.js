@@ -127,7 +127,7 @@ const petSlice = createSlice({
             .addCase(updatePet.fulfilled, (state, action) => {
                 state.status = "succeeded";
                 state.pets = state.pets.map((pet) => (pet.id === action.payload.id ? action.payload : pet));
-                state.selectedPet = action.payload; // Update selected pet
+                state.selectedPet = action.payload;
             })
             .addCase(updatePet.rejected, (state, action) => {
                 state.status = "failed";

@@ -68,22 +68,25 @@ const LoginPage = () => {
     };
 
     return (
+
         <Box
             sx={{
-                height: "100vh",
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: "flex-start",
                 backgroundColor: "#f0f4f8",
-                padding: { xs: 2, md: 0 }, // Responsive padding for mobile screens
+                padding: { xs: 2, md: 4 },
+                minHeight: "100vh",
+                flexGrow: 1,
             }}
         >
             <Paper
                 elevation={6}
                 sx={{
-                    padding: { xs: 3, md: 5 }, // Adjust padding dynamically
+                    padding: { xs: 3, md: 5 },
+                    marginTop: { xs: "60px", md: "80px" },
                     borderRadius: 4,
-                    maxWidth: { xs: "90%", sm: 420 }, // Mobile-friendly width
+                    maxWidth: { xs: "90%", sm: 420 },
                     width: "100%",
                     textAlign: "center",
                     backgroundColor: "#ffffff",

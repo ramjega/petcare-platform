@@ -13,7 +13,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {Add} from "@mui/icons-material";
+import {Add, Pets} from "@mui/icons-material";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchPets} from "../../redux/petSlice";
 import {useNavigate} from "react-router-dom";
@@ -26,8 +26,7 @@ const ManagePets = () => {
     const {pets, status, error} = useSelector((state) => state.pet);
     const navigate = useNavigate();
 
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [petDialogOpen, setPetDialogOpen] = useState(false);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -79,20 +78,50 @@ const ManagePets = () => {
                 position: "relative"
             }}
         >
-            <Typography
-                variant="h4"
-                fontWeight="bold"
-                sx={{textAlign: "center", mb: 3, color: "#1976d2"}}
+            <Box
+                sx={{
+                    textAlign: "center",
+                    mb: 4,
+                    padding: { xs: 2, md: 3 },
+                    background: "linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)",
+                    borderRadius: 3,
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+                    color: "#fff",
+                }}
             >
-                🐾 My Pets
-            </Typography>
+                <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                    sx={{
+                        fontSize: { xs: "1.2rem", md: "2rem" },
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 2,
+                    }}
+                >
+                    <Pets sx={{ fontSize: { xs: 40, md: 50 }, color: "#FFEB3B" }} />
+                    My Pet Dashboard
+                </Typography>
+                <Typography
+                    variant="subtitle1"
+                    sx={{
+                        mt: 1,
+                        fontSize: { xs: "0.9rem", md: "1.1rem" },
+                        color: "rgba(255, 255, 255, 0.9)",
+                    }}
+                >
+                    Manage your pets, track health, and schedule appointments 🐾
+                </Typography>
+            </Box>
+
 
             {!isMobile && (
                 <Box sx={{display: "flex", justifyContent: "flex-end", mb: 3}}>
                     <Button
                         variant="contained"
                         startIcon={<Add/>}
-                        onClick={() => setDialogOpen(true)}
+                        onClick={() => setPetDialogOpen(true)}
                         sx={{
                             backgroundColor: "#1976d2",
                             "&:hover": {backgroundColor: "#1565c0"},
@@ -125,11 +154,9 @@ const ManagePets = () => {
                                     color: "#fff",
                                     textAlign: "center",
                                     transition: "0.3s",
-                                    "&:hover": {transform: "scale(1.05)", boxShadow: 6},
+                                    "&:hover": { transform: "scale(1.05)", boxShadow: 6 },
                                     position: "relative",
-                                    background: pet.imageUrl
-                                        ? "linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8))"
-                                        : "linear-gradient(135deg, #a1c4fd 10%, #c2e9fb 100%)"
+                                    background: "linear-gradient(135deg, #90caf9, #42a5f5, #1e88e5)", // Light blue gradient
                                 }}
                                 onClick={() => handleCardClick(pet.id)}
                             >
@@ -159,18 +186,18 @@ const ManagePets = () => {
                                         }
                                     }}
                                 >
-                                    {!pet.imageUrl && <PetsIcon sx={{fontSize: 40, color: "#757575"}}/>}
+                                    {!pet.imageUrl && <PetsIcon sx={{ fontSize: 40, color: "#757575" }} />}
                                 </Avatar>
 
-                                <CardContent sx={{mt: 10}}>
+                                <CardContent sx={{ mt: 10 }}>
                                     <Typography variant="h6" fontWeight="bold">
                                         {pet.name}
                                     </Typography>
                                     <Chip
                                         label={pet.type}
-                                        sx={{bgcolor: "#ffffff", color: "#000", mb: 1}}
+                                        sx={{ bgcolor: "#ffffff", color: "#000", mb: 1 }}
                                     />
-                                    <Box sx={{display: "flex", justifyContent: "center", gap: 2, mt: 1}}>
+                                    <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 1 }}>
                                         <Typography variant="body2">
                                             {pet.gender === "Male" ? "♂" : "♀"} {pet.gender}
                                         </Typography>
@@ -200,7 +227,7 @@ const ManagePets = () => {
                         "&:hover": {backgroundColor: "#115293"},
                         zIndex: 1000
                     }}
-                    onClick={() => setDialogOpen(true)}
+                    onClick={() => setPetDialogOpen(true)}
                 >
                     <Add/>
                 </Fab>
@@ -208,12 +235,9 @@ const ManagePets = () => {
             )}
             {/* Add Pet Dialog */}
             <PetDialog
-                open={dialogOpen}
-                onClose={() => setDialogOpen(false)}
-                onSubmit={() => {
-                }}
+                open={petDialogOpen}
+                onClose={() => setPetDialogOpen(false)}
                 mode={"create"}
-                loading={loading}
             />
         </Box>
     );

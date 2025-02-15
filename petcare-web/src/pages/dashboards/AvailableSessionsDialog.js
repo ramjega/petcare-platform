@@ -1,16 +1,26 @@
 import React from "react";
 import {
-    Dialog, DialogTitle, DialogContent, DialogActions, Button,
-    List, ListItem, ListItemText, Avatar, Typography, Box, Divider, Chip
+    Avatar,
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    List,
+    ListItem,
+    ListItemText,
+    Typography
 } from "@mui/material";
-import EventNoteIcon from "@mui/icons-material/EventNote";
 import {format} from "date-fns";
 import {Event, LocationOn} from "@mui/icons-material";
 
 const AvailableSessionsDialog = ({ open, onClose, sessions, onSelectSession}) => {
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle sx={{ textAlign: "center", fontWeight: "bold",  bgcolor: "#1976d2", color: "#fff", mb: 2 }}>
+            <DialogTitle sx={{textAlign: "center", fontWeight: "bold", bgcolor: "#1976d2", color: "#fff", mb: 2}}>
                 Available Sessions
             </DialogTitle>
             <DialogContent sx={{ maxHeight: "70vh", overflowY: "auto", p: 3 }}>
