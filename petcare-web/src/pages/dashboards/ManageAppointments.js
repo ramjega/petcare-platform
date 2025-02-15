@@ -10,12 +10,13 @@ import {
     Fab,
     List,
     ListItem,
-    ListItemText, Snackbar,
+    Snackbar,
     Typography,
     useMediaQuery,
-    useTheme
+    useTheme,
+    Divider
 } from "@mui/material";
-import {Add, AddCircleOutline, EventNote} from "@mui/icons-material";
+import {Add, AddCircleOutline, Event, LocationOn, Person} from "@mui/icons-material";
 import {fetchMyAppointments} from "../../redux/appointmentSlice";
 import {fetchPets} from "../../redux/petSlice";
 import {fetchOrganizations} from "../../redux/organizationSlice";
@@ -25,6 +26,7 @@ import {searchSessions} from "../../redux/sessionSlice";
 import SessionSearchDialog from "./SessionSearchDialog";
 import AvailableSessionsDialog from "./AvailableSessionsDialog";
 import AppointmentBookingDialog from "./AppointmentBookingDialog";
+import AppointmentList from "./AppointmentList";
 
 const ManageAppointments = () => {
     const dispatch = useDispatch();
@@ -144,8 +146,14 @@ const ManageAppointments = () => {
         setBookingRequest({
             petId: searchCriteria.petId,
             sessionId: session.id,
+
             petName: pets.find(pet => pet.id === searchCriteria.petId)?.name || "Unknown",
-            petImageUrl: pets.find(pet => pet.id === searchCriteria.petId)?.imageUrl || "Unknown",
+            petType: pets.find(pet => pet.id === searchCriteria.petId)?.type || "",
+            petBreed: pets.find(pet => pet.id === searchCriteria.petId)?.breed || "",
+            petGender: pets.find(pet => pet.id === searchCriteria.petId)?.gender || "",
+            petBirthDate: pets.find(pet => pet.id === searchCriteria.petId)?.birthDate || "",
+            petImageUrl: pets.find(pet => pet.id === searchCriteria.petId)?.imageUrl || "",
+
             professional: session.professional.name,
             professionalImageUrl: session.professional.imageUrl,
             speciality: session.professional.speciality,
@@ -183,114 +191,13 @@ const ManageAppointments = () => {
             </Box>
 
             {/* Appointment List */}
-            <Box sx={{padding: {xs: 2, md: 4}, backgroundColor: "#f0f4f8", minHeight: "100vh"}}>
-
-                {!isMobile && (
-                    <Box sx={{display: "flex", justifyContent: "flex-end", mb: 3}}>
-                        <Button
-                            variant="contained"
-                            startIcon={<AddCircleOutline/>}
-                            onClick={handleOpenSearchDialog}
-                            sx={{
-                                backgroundColor: "#1976d2",
-                                "&:hover": {backgroundColor: "#1565c0"},
-                                width: "auto",
-                            }}
-                        >
-                            New Appointment
-                        </Button>
-                    </Box>
-                )}
-
-                {status === "loading" ? (
-                    <CircularProgress sx={{display: "block", margin: "20px auto"}}/>
-                ) : (
-                    <>
-                        {/* Show Upcoming Appointments */}
-                        {upcomingAppointments.length > 0 && (
-                            <>
-                                <Typography variant="h6" sx={{mt: 3, mb: 1, fontWeight: "bold", color: "#1976d2"}}>
-                                    Upcoming Appointments
-                                </Typography>
-                                <List>
-                                    {upcomingAppointments.map((appointment) => {
-                                        const appointmentDate = new Date(appointment.session.start);
-                                        return (
-                                            <ListItem
-                                                key={appointment.id}
-                                                sx={{
-                                                    backgroundColor: "#fff",
-                                                    mb: 2,
-                                                    borderRadius: 2,
-                                                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                                                }}
-                                            >
-                                                <Avatar sx={{bgcolor: "#1976d2", mr: 2}}>
-                                                    <EventNote/>
-                                                </Avatar>
-                                                <ListItemText
-                                                    primary={`${appointment.purpose} - ${appointment.pet.name}`}
-                                                    secondary={`${appointmentDate.toLocaleDateString()} at ${appointmentDate.toLocaleTimeString([], {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })}`}
-                                                    primaryTypographyProps={{fontWeight: "bold"}}
-                                                    secondaryTypographyProps={{color: "text.secondary"}}
-                                                />
-                                            </ListItem>
-                                        );
-                                    })}
-                                </List>
-                            </>
-                        )}
-
-                        {/* Show Past Appointments */}
-                        {pastAppointments.length > 0 && (
-                            <>
-                                <Typography variant="h6" sx={{mt: 3, mb: 1, fontWeight: "bold", color: "#9f9999"}}>
-                                    Past Appointments
-                                </Typography>
-                                <List>
-                                    {pastAppointments.map((appointment) => {
-                                        const appointmentDate = new Date(appointment.session.start);
-                                        return (
-                                            <ListItem
-                                                key={appointment.id}
-                                                sx={{
-                                                    backgroundColor: "#fff",
-                                                    mb: 2,
-                                                    borderRadius: 2,
-                                                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                                                }}
-                                            >
-                                                <Avatar sx={{bgcolor: "#9f9999", mr: 2}}>
-                                                    <EventNote/>
-                                                </Avatar>
-                                                <ListItemText
-                                                    primary={`${appointment.purpose} - ${appointment.pet.name}`}
-                                                    secondary={`${appointmentDate.toLocaleDateString()} at ${appointmentDate.toLocaleTimeString([], {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })}`}
-                                                    primaryTypographyProps={{fontWeight: "bold"}}
-                                                    secondaryTypographyProps={{color: "text.secondary"}}
-                                                />
-                                            </ListItem>
-                                        );
-                                    })}
-                                </List>
-                            </>
-                        )}
-
-                        {/* Show Message if No Appointments Found */}
-                        {upcomingAppointments.length === 0 && pastAppointments.length === 0 && (
-                            <Typography textAlign="center" color="textSecondary">
-                                No appointments found.
-                            </Typography>
-                        )}
-                    </>
-                )}
-            </Box>
+            <AppointmentList
+                status={status}
+                upcomingAppointments={upcomingAppointments}
+                pastAppointments={pastAppointments}
+                handleOpenSearchDialog={handleOpenSearchDialog}
+                isMobile={isMobile}
+            />
 
             {isMobile && (
                 <Fab

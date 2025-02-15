@@ -10,6 +10,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import NoteIcon from "@mui/icons-material/Note";
+import {Pets} from "@mui/icons-material";
 
 const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar}) => {
     const dispatch = useDispatch();
@@ -64,15 +65,11 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                             <Avatar
                                 src={bookingRequest.petImageUrl || ""}
                                 sx={{ width: 50, height: 50, bgcolor: "#eee" }}
-                            />
+                            >
+                                {!bookingRequest.petImageUrl && <Pets sx={{ fontSize: 30, color: "#1976d2" }} />}
+                            </Avatar>
                             <Typography variant="h6" fontWeight="bold">{bookingRequest.petName}</Typography>
                         </Box>
-
-                        {/* Right Side: Professional Image (If exists) */}
-                        <Avatar
-                            src={bookingRequest.professionalImageUrl || ""}
-                            sx={{ width: 50, height: 50, bgcolor: "#eee" }}
-                        />
                     </Box>
                 )}
 
@@ -83,7 +80,7 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <PersonIcon sx={{ color: "#1976d2" }} />
+                                <Avatar src={bookingRequest.professionalImageUrl || ""} sx={{bgcolor: "#eee", color: "#1976d2"}} />
                                 <Typography>
                                     <b>{bookingRequest.professional}</b> ({bookingRequest.speciality})
                                 </Typography>
@@ -130,7 +127,7 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                 )}
             </DialogContent>
 
-            <DialogActions sx={{ px: 3, pb: 2, justifyContent: "space-between" }}>
+            <DialogActions sx={{ px: 3, pb: 2}}>
                 <Button onClick={onClose} sx={{ color: "#555" }}>Cancel</Button>
                 <Button
                     variant="contained"
@@ -141,7 +138,7 @@ const AppointmentBookingDialog = ({ open, onClose, bookingRequest, setSnackbar})
                         "&:hover": { bgcolor: "#115293" }
                     }}
                 >
-                    {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Confirm Booking"}
+                    {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Confirm"}
                 </Button>
             </DialogActions>
         </Dialog>

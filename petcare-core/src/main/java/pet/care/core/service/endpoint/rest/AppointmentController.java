@@ -14,6 +14,8 @@ import pet.care.core.service.endpoint.rest.dto.AppointmentDto;
 import pet.care.core.service.module.AppointmentService;
 import pet.care.core.service.util.TimeUtils;
 
+import java.util.Optional;
+
 import static java.util.Objects.isNull;
 import static pet.care.core.service.common.Converter.response;
 import static pet.care.core.service.common.StatusCode.sc;
@@ -29,6 +31,16 @@ public class AppointmentController {
     public AppointmentController(ApplicationContext context) {
         this.service = context.getBean(AppointmentService.class);
         this.repo = context.getBean(AppointmentRepo.class);
+    }
+
+    @GetMapping(value = "/api/appointment/{id}")
+    public ResponseEntity get(@PathVariable Long id) {
+        Optional<Appointment> appointment = repo.findById(id);
+        if (appointment.isPresent()) {
+            return response(Result.of(appointment.get()));
+        } else {
+            return response(Result.of("Appointment not found for id ["+id+"]!"));
+        }
     }
 
     @GetMapping(value = "/api/appointment/my")

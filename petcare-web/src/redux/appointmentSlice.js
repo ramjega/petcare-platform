@@ -35,7 +35,22 @@ export const fetchAppointmentsBySession = createAsyncThunk(
     }
 );
 
-// Bookg Appointment
+export const fetchAppointmentById = createAsyncThunk(
+    "sessions/fetchAppointmentById",
+    async (appointmentId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.get(`${BASE_URL}/${appointmentId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch appointment");
+        }
+    }
+);
+
+// Book Appointment
 export const bookAppointment = createAsyncThunk("appointments/book", async (appointmentData, { rejectWithValue, getState }) => {
         try {
             const token = getState().auth.token;
@@ -102,6 +117,7 @@ const appointmentSlice = createSlice({
     name: "appointments",
     initialState: {
         appointments: [],
+        appointment:null,
         status: "idle", // idle | loading | succeeded | failed
         error: null,
     },
@@ -130,6 +146,19 @@ const appointmentSlice = createSlice({
                 state.appointments = action.payload;
             })
             .addCase(fetchMyAppointments.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
+             // Fetch appointment by id
+            .addCase(fetchAppointmentById.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchAppointmentById.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.appointment = action.payload;
+            })
+            .addCase(fetchAppointmentById.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })

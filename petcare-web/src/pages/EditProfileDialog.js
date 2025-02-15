@@ -147,7 +147,6 @@ const EditProfileDialog = ({ open, onClose }) => {
                             name="email"
                             value={profileData.email}
                             onChange={handleInputChange}
-                            disabled
                             sx={{ borderRadius: "8px", bgcolor: "#f0f0f0" }}
                         />
                     </Grid>

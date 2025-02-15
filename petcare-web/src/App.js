@@ -12,6 +12,7 @@ import ProfileView from "./pages/ProfileView";
 import ScheduleManagement from "./pages/dashboards/ScheduleManagement";
 import ScheduleView from "./pages/dashboards/ScheduleView";
 import SessionView from "./pages/dashboards/SessionView";
+import AppointmentView from "./pages/dashboards/AppointmentView";
 
 function App() {
     return (
@@ -30,6 +31,7 @@ function App() {
                     <Route path="/dashboard/schedules" element={<ScheduleManagement />} />
                     <Route path="/dashboard/session/:id" element={<SessionView />} />
                     <Route path="/dashboard/schedule/:id" element={<ScheduleView />} />
+                    <Route path="/appointment/:id" element={<AppointmentView />} />
                 </Routes>
             </Layout>
         </Router>
