@@ -4,6 +4,20 @@ import axios from "axios";
 const API_URL = "http://localhost:8000/api";
 
 // **Fetch User Profile**
+export const fetchAllProfiles = createAsyncThunk("profile/fetchAllProfiles", async (_, { rejectWithValue, getState }) => {
+    try {
+        const token = getState().auth.token; // Get auth token from Redux state
+        const response = await axios.get(`${API_URL}/profile/all`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        return response.data; // User profile data
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch profile");
+    }
+});
+
 export const fetchUserProfile = createAsyncThunk("profile/fetchUserProfile", async (_, { rejectWithValue, getState }) => {
     try {
         const token = getState().auth.token; // Get auth token from Redux state
@@ -55,11 +69,24 @@ const profileSlice = createSlice({
         user: null,
         status: "idle", // idle | loading | succeeded | failed
         professionals: [],
+        users: [],
         error: null,
     },
     reducers: {},
     extraReducers: (builder) => {
         builder
+            .addCase(fetchAllProfiles.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchAllProfiles.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.users = action.payload;
+            })
+            .addCase(fetchAllProfiles.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
             // Fetch User Profile
             .addCase(fetchUserProfile.pending, (state) => {
                 state.status = "loading";

@@ -36,6 +36,11 @@ public class ProfileController {
         this.authController = context.getBean(AuthenticationController.class);
     }
 
+    @GetMapping(value = "/api/profile/all")
+    public ResponseEntity<List<Profile>> getProfiles() {
+        return ResponseEntity.ok(repo.findAll());
+    }
+
     @GetMapping(value = "/api/profile/professionals")
     public ResponseEntity<List<Profile>> getProfessionals() {
         return ResponseEntity.ok(repo.findAllByRole(ProfileRole.professional));
