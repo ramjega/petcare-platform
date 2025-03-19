@@ -18,15 +18,15 @@ import {
     DialogTitle,
     Divider,
     FormControlLabel,
-    Grid,
-    InputLabel,
+    Grid, InputAdornment,
+    InputLabel, MenuItem,
     Snackbar,
     TextField,
     Typography,
     useMediaQuery,
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
-import {AccessTime, Add, Group} from "@mui/icons-material";
+import {AccessTime, Add, Business, Group} from "@mui/icons-material";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {DatePicker, TimePicker} from "@mui/x-date-pickers";
@@ -39,11 +39,13 @@ import {
     deleteSchedule,
     fetchSchedules
 } from "../../redux/scheduleSlice";
+import {fetchOrganizations} from "../../redux/organizationSlice";
 
 import EventIcon from "@mui/icons-material/Event";
 
 const ScheduleManagementComponent = () => {
     const {schedules, status, error} = useSelector((state) => state.schedule);
+    const {organizations} = useSelector((state) => state.organization);
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [confirmationDialog, setConfirmationDialog] = useState({open: false, action: null, id: null});
@@ -59,6 +61,7 @@ const ScheduleManagementComponent = () => {
 
     useEffect(() => {
         dispatch(fetchSchedules());
+        dispatch(fetchOrganizations());
     }, [dispatch]);
 
     const [scheduleData, setScheduleData] = useState({
@@ -130,9 +133,10 @@ const ScheduleManagementComponent = () => {
         setErrors((prev) => ({...prev, startTime: ""}));
     };
 
-    const handleNumberChange = (value) => {
-        setScheduleData((prev) => ({...prev, maxAppointments: value}));
-        setErrors((prev) => ({...prev, maxAppointments: ""}));
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setScheduleData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     const dayMap = {
@@ -165,6 +169,7 @@ const ScheduleManagementComponent = () => {
         if (!scheduleData.endDate) newErrors.endDate = "End Date is required";
         if (!scheduleData.startTime) newErrors.startTime = "Start time is required";
         if (!scheduleData.maxAppointments || scheduleData.maxAppointments <= 0) newErrors.maxAppointments = "Max Appointments must be greater than 0";
+        if (!scheduleData.organizationId) newErrors.organizationId = "Organization required";
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -186,7 +191,10 @@ const ScheduleManagementComponent = () => {
 
         const schedulePayload = {
             maxAllowed: scheduleData.maxAppointments,
-            recurringRule: `FREQ=WEEKLY;BYDAY=${scheduleData.days.join(",")};DTSTART=${combineDateTime(scheduleData.startDate, scheduleData.startTime)};UNTIL=${combineDateTime(scheduleData.endDate, "23:59")};INTERVAL=1`,
+            recurringRule: `DTSTART=${combineDateTime(scheduleData.startDate, scheduleData.startTime)};UNTIL=${combineDateTime(scheduleData.endDate, "23:59")};FREQ=WEEKLY;BYDAY=${scheduleData.days.join(",")};INTERVAL=1`,
+            organization:{
+                id: scheduleData.organizationId
+            }
         };
 
         dispatch(createSchedule(schedulePayload))
@@ -389,85 +397,94 @@ const ScheduleManagementComponent = () => {
 
                         <Grid container spacing={2} sx={{mt: 2}}>
                             <Grid item xs={6}>
-                                <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                    <Box sx={{mr: 1}}>
-                                        <EventIcon color="action"/>
-                                    </Box>
-                                    <DatePicker
-                                        label="From"
-                                        value={pickerValues.startDate}
-                                        onChange={(newValue) => handleDateChange("startDate", newValue)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                fullWidth
-                                                error={!!errors.startDate}
-                                                helperText={errors.startDate}
-                                                InputLabelProps={{shrink: true}}
-                                            />
-                                        )}
-                                    />
-                                </Box>
+                                <DatePicker
+                                    label="From"
+                                    value={pickerValues.startDate}
+                                    onChange={(newValue) => handleDateChange("startDate", newValue)}
+                                    slotProps={{
+                                        textField: {
+                                            variant: 'outlined',
+                                            error: !!errors.startDate,
+                                            helperText: errors.startDate,
+                                        }
+                                    }}
+                                />
                             </Grid>
                             <Grid item xs={6}>
-                                <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                    <Box sx={{mr: 1}}>
-                                        <EventIcon color="action"/>
-                                    </Box>
-                                    <DatePicker
-                                        label="To"
-                                        value={pickerValues.endDate}
-                                        onChange={(newValue) => handleDateChange("endDate", newValue)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                fullWidth
-                                                error={!!errors.endDate}
-                                                helperText={errors.endDate}
-                                            />
-                                        )}
-                                    />
-                                </Box>
+                                <DatePicker
+                                    label="To"
+                                    value={pickerValues.endDate}
+                                    onChange={(newValue) => handleDateChange("endDate", newValue)}
+                                    slotProps={{
+                                        textField: {
+                                            variant: 'outlined',
+                                            error: !!errors.endDate,
+                                            helperText: errors.endDate,
+                                        }
+                                    }}
+                                />
                             </Grid>
                         </Grid>
 
                         <Grid container spacing={2} sx={{mt: 2}}>
                             <Grid item xs={6}>
-                                <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                    <Box sx={{mr: 1}}>
-                                        <AccessTime color="action"/>
-                                    </Box>
-
-                                    <TimePicker
-                                        label="Time"
-                                        value={pickerValues.startTime}
-                                        onChange={handleTimeChange}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                fullWidth
-                                                error={!!errors.startTime}
-                                                helperText={errors.startTime}
-                                            />
-                                        )}
-                                    />
-                                </Box>
+                                <TimePicker
+                                    label="Time"
+                                    value={pickerValues.startTime}
+                                    onChange={handleTimeChange}
+                                    slotProps={{
+                                        textField: {
+                                            variant: 'outlined',
+                                            error: !!errors.startTime,
+                                            helperText: errors.startTime,
+                                        }
+                                    }}
+                                />
                             </Grid>
                             <Grid item xs={6}>
-                                <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                    <Box sx={{mr: 1}}>
-                                        <Group color="action"/>
-                                    </Box>
-                                    <TextField
-                                        label="Max Bookings"
-                                        type="number"
-                                        name="maxAppointments"
-                                        value={scheduleData.maxAppointments}
-                                        onChange={(e) => handleNumberChange(e.target.value)}
-                                        error={!!errors.maxAppointments}
-                                        helperText={errors.maxAppointments}
-                                    />
-                                </Box>
+                                <TextField
+                                    label="Max Appointments"
+                                    type="number"
+                                    name="maxAppointments"
+                                    value={scheduleData.maxAppointments}
+                                    onChange={handleInputChange}
+                                    error={!!errors.maxAppointments}
+                                    helperText={errors.maxAppointments}
+                                    fullWidth
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Group color="action" />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label="Organization"
+                                    name="organizationId"
+                                    value={scheduleData.organizationId}
+                                    onChange={handleInputChange}
+                                    error={!!errors.organizationId}
+                                    helperText={errors.organizationId}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Business color="action"/>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                >
+                                    {organizations.map((organization) => (
+                                        <MenuItem key={organization.id} value={organization.id}>
+                                            {organization.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
                             </Grid>
                         </Grid>
                     </DialogContent>

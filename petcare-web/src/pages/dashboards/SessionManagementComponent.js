@@ -21,20 +21,23 @@ import {
     IconButton,
     InputAdornment,
     useMediaQuery,
-    useTheme, Snackbar, Alert
+    useTheme, Snackbar, Alert, InputLabel, FormLabel, RadioGroup, FormControlLabel, Radio
 } from "@mui/material";
-import { Add, Group, Event, FilterList, Close } from "@mui/icons-material";
+import {Add, Group, Event, FilterList, Close, Business, Male, Female} from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUpcomingSessions, createSession, fetchSessions } from "../../redux/sessionSlice";
+import {fetchOrganizations} from "../../redux/organizationSlice";
 import { statusColors } from "../../utils/colors";
 
 const SessionManagementComponent = () => {
     const dispatch = useDispatch();
 
     const { sessions, status, error } = useSelector((state) => state.session);
+    const {organizations} = useSelector((state) => state.organization);
+
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedStatus, setSelectedStatus] = useState("");
     const [showUpcoming, setShowUpcoming] = useState(false);
@@ -55,6 +58,7 @@ const SessionManagementComponent = () => {
 
     const navigate = useNavigate();
 
+
     const fetchSessionsByDate = useCallback((date) => {
         const timestamp = new Date(date).getTime();
         dispatch(fetchSessions({ date: timestamp }));
@@ -62,7 +66,8 @@ const SessionManagementComponent = () => {
 
     useEffect(() => {
         fetchSessionsByDate(selectedDate);
-    }, [fetchSessionsByDate, selectedDate]);
+        dispatch(fetchOrganizations());
+    }, [dispatch, fetchSessionsByDate, selectedDate]);
 
     const handleDateChange = (newDate) => {
         setSelectedDate(newDate);
@@ -124,6 +129,7 @@ const SessionManagementComponent = () => {
         let newErrors = {};
         if (!sessionData.start) newErrors.start = "Start time is required";
         if (!sessionData.maxAllowed) newErrors.maxAllowed = "Max Appointments is required";
+        if (!sessionData.organizationId) newErrors.organizationId = "Organization required";
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -146,6 +152,9 @@ const SessionManagementComponent = () => {
         const sessionPayload = {
             maxAllowed: sessionData.maxAllowed,
             start: sessionData.start ? sessionData.start.getTime() : null,
+            organization:{
+                id: sessionData.organizationId
+            }
         };
 
         dispatch(createSession(sessionPayload))
@@ -332,26 +341,20 @@ const SessionManagementComponent = () => {
                         {/* Start Time Picker */}
                         <Grid item xs={12}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <DateTimePicker
-                                    label="Start Time"
-                                    value={sessionData.start}
-                                    onChange={handleDateTimeChange}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            fullWidth
-                                            {...params}
-                                            error={!!errors.start}
-                                            helperText={errors.start}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <Event color="action" />
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
-                                    )}
-                                />
+                                <FormControl fullWidth>
+                                    <DateTimePicker
+                                        label="Start Time"
+                                        value={sessionData.start}
+                                        onChange={handleDateTimeChange}
+                                        slotProps={{
+                                            textField: {
+                                                variant: 'outlined',
+                                                error: !!errors.start,
+                                                helperText: errors.start,
+                                            }
+                                        }}
+                                    />
+                                </FormControl>
                             </LocalizationProvider>
                         </Grid>
 
@@ -371,9 +374,35 @@ const SessionManagementComponent = () => {
                                         <InputAdornment position="start">
                                             <Group color="action" />
                                         </InputAdornment>
-                                    ),
+                                    )
                                 }}
                             />
+                        </Grid>
+                        {/* Organization Dropdown */}
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                select
+                                label="Organization"
+                                name="organizationId"
+                                value={sessionData.organizationId}
+                                onChange={handleInputChange}
+                                error={!!errors.organizationId}
+                                helperText={errors.organizationId}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Business color="action"/>
+                                        </InputAdornment>
+                                    )
+                                }}
+                            >
+                                {organizations.map((organization) => (
+                                    <MenuItem key={organization.id} value={organization.id}>
+                                        {organization.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
                         </Grid>
                     </Grid>
                 </DialogContent>

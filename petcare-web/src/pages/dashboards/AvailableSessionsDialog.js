@@ -137,7 +137,7 @@ const AvailableSessionsDialog = ({ open, onClose, sessions, onSelectSession}) =>
                     </List>
                 ) : (
                     <Typography variant="h6" sx={{ textAlign: "center", color: "text.secondary" }}>
-                        No sessions available. Try different dates
+                        No sessions available. Try different dates or places
                     </Typography>
                 )}
             </DialogContent>

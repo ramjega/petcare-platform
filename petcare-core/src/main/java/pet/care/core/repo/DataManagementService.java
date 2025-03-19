@@ -16,6 +16,8 @@ import pet.care.core.service.factory.OrganizationFactory;
 import pet.care.core.service.factory.ProfileFactory;
 import pet.care.core.service.module.PetService;
 import pet.care.core.service.module.ScheduleService;
+import pet.care.core.service.util.DateTimeFormats;
+import pet.care.core.service.util.TimeUtils;
 
 import javax.annotation.PostConstruct;
 
@@ -71,33 +73,30 @@ public class DataManagementService {
             Profile jenuthan = profileFactory.createProfessional("Jenuthan", "0778667986", "Test@123", Speciality.Training).unwrap();
             Profile theepan = profileFactory.createProfessional("Theepan", "0776621792", "Test@123", Speciality.Grooming).unwrap();
 
-            // Creating schedules
+//             Creating schedules
             Schedule schedule1 = new Schedule();
-            schedule1.setRecurringRule("FREQ=WEEKLY;BYDAY=MO,WE,FR,SU;DTSTART=20250214T023000Z;UNTIL=20250430T182900Z;INTERVAL=1");
+            schedule1.setRecurringRule("DTSTART=" + DateTimeFormats.convertUtcLongToUtcString(TimeUtils.startTimeOfLocalToday()) + ";FREQ=WEEKLY;BYDAY=MO,TU,WE,FR,SU;INTERVAL=1");
             schedule1.setMaxAllowed(10L);
             schedule1.setStatus(ScheduleStatusValue.active);
             schedule1.setProfessional(sriram);
             schedule1.setOrganization(jaffnaVetHospital);
             scheduleService.create(schedule1).unwrap();
-            System.out.println("schedule1 = " + schedule1.getRecurringRule());
 
             Schedule schedule2 = new Schedule();
-            schedule2.setRecurringRule("FREQ=WEEKLY;BYDAY=MO,WE,FR,SU;DTSTART=20250214T033000Z;UNTIL=20250430T182900Z;INTERVAL=1");
+            schedule2.setRecurringRule("DTSTART=" + DateTimeFormats.convertUtcLongToUtcString(TimeUtils.startTimeOfLocalToday()) + ";FREQ=WEEKLY;BYDAY=MO,TU,WE,FR,SU;INTERVAL=1");
             schedule2.setMaxAllowed(20L);
             schedule2.setStatus(ScheduleStatusValue.active);
             schedule2.setProfessional(jenuthan);
             schedule2.setOrganization(kilinochiTrainingCentre);
             scheduleService.create(schedule2).unwrap();
-            System.out.println("schedule2 = " + schedule2.getRecurringRule());
 
             Schedule schedule3 = new Schedule();
-            schedule3.setRecurringRule("FREQ=WEEKLY;BYDAY=MO,WE,FR,SU;DTSTART=20250214T053000Z;UNTIL=20250430T182900Z;INTERVAL=1");
+            schedule3.setRecurringRule("DTSTART=" + DateTimeFormats.convertUtcLongToUtcString(TimeUtils.startTimeOfLocalToday()) + ";FREQ=WEEKLY;BYDAY=MO,TU,WE,FR,SU;INTERVAL=1");
             schedule3.setMaxAllowed(15L);
             schedule3.setStatus(ScheduleStatusValue.active);
             schedule3.setProfessional(theepan);
             schedule3.setOrganization(colomboGroomingCentre);
             scheduleService.create(schedule3).unwrap();
-            System.out.println("schedule3 = " + schedule3.getRecurringRule());
 
             // Creating pets
             Pet pet1 = new Pet();
