@@ -1,118 +1,249 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TextField, MenuItem, Button } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
-import axios from "axios";
+import {
+    Box, Typography, Card, CardContent, CardHeader,
+    TextField, InputAdornment, Paper, Table, TableBody,
+    TableCell, TableContainer, TableHead, TableRow,
+    CircularProgress, IconButton,
+    Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert
+} from "@mui/material";
+import { Search, Edit, Delete, Save} from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCities, createCity, updateCity, deleteCity } from "../../../redux/citySlice";
 
-const UserManagement = () => {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(false);
+const CityManagement = () => {
+    const dispatch = useDispatch();
+    const { cities, loading } = useSelector(state => state.city);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filterRole, setFilterRole] = useState("");
+    const [openDialog, setOpenDialog] = useState(false);
+
+    const [newCityName, setNewCityName] = useState("");
+    const [editRowId, setEditRowId] = useState(null);
+    const [editCityName, setEditCityName] = useState("");
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        dispatch(fetchCities());
+    }, [dispatch]);
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get("http://localhost:8000/api/admin/users");
-            setUsers(response.data);
-        } catch (error) {
-            console.error("Error fetching users:", error);
-        }
-        setLoading(false);
-    };
-
-    const handleDelete = async (userId) => {
-        if (window.confirm("Are you sure you want to delete this user?")) {
-            try {
-                await axios.delete(`http://localhost:8000/api/admin/users/${userId}`);
-                setUsers(users.filter(user => user.id !== userId));
-            } catch (error) {
-                console.error("Error deleting user:", error);
-            }
-        }
-    };
-
-    const filteredUsers = users.filter(user =>
-        (user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchQuery.toLowerCase())) &&
-        (filterRole ? user.role === filterRole : true)
-    );
+    const filteredCities = cities?.filter(city =>
+        city.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
 
     return (
         <Box sx={{ padding: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
-                User Management
-            </Typography>
-
-            {/* Search & Filter */}
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                    label="Search Users"
-                    variant="outlined"
-                    fullWidth
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+            <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
+                <CardHeader
+                    title="City Management"
+                    sx={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                        fontSize: "1.5rem",
+                        fontWeight: "bold",
+                        padding: "16px",
+                    }}
                 />
-                <TextField
-                    select
-                    label="Filter by Role"
-                    value={filterRole}
-                    onChange={(e) => setFilterRole(e.target.value)}
-                    variant="outlined"
-                >
-                    <MenuItem value="">All</MenuItem>
-                    <MenuItem value="admin">Admin</MenuItem>
-                    <MenuItem value="pet_owner">Pet Owner</MenuItem>
-                    <MenuItem value="professional">Professional</MenuItem>
-                    <MenuItem value="community">Community</MenuItem>
-                </TextField>
-            </Box>
+                <CardContent sx={{ padding: 3 }}>
+                    {/* Search Field */}
+                    <Box sx={{ mb: 2 }}>
+                        <TextField
+                            label="Search Cities"
+                            variant="outlined"
+                            fullWidth
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Search sx={{ color: "#1976d2" }} />
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+                    </Box>
 
-            {/* User Table */}
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow sx={{ backgroundColor: "#f0f0f0" }}>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Role</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={6} align="center">Loading...</TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredUsers.map((user) => (
-                                <TableRow key={user.id}>
-                                    <TableCell>{user.id}</TableCell>
-                                    <TableCell>{user.name}</TableCell>
-                                    <TableCell>{user.email || "N/A"}</TableCell>
-                                    <TableCell>{user.role}</TableCell>
-                                    <TableCell>{user.status}</TableCell>
-                                    <TableCell>
-                                        <IconButton color="primary">
-                                            <Edit />
-                                        </IconButton>
-                                        <IconButton color="error" onClick={() => handleDelete(user.id)}>
-                                            <Delete />
-                                        </IconButton>
-                                    </TableCell>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => setOpenDialog(true)}
+                            sx={{ fontWeight: "bold", textTransform: "none" }}
+                        >
+                            + Add City
+                        </Button>
+                    </Box>
+
+                    {/* Table */}
+                    <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                        <Table>
+                            <TableHead>
+                                <TableRow sx={{ backgroundColor: "#e3f2fd" }}>
+                                    <TableCell>ID</TableCell>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell align="center">Actions</TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                            </TableHead>
+                            <TableBody>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={3} align="center">
+                                            <CircularProgress size={24} />
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    filteredCities.map(city => (
+                                        <TableRow key={city.id}>
+                                            <TableCell>{city.id}</TableCell>
+                                            <TableCell>
+                                                {editRowId === city.id ? (
+                                                    <TextField
+                                                        value={editCityName}
+                                                        onChange={(e) => setEditCityName(e.target.value)}
+                                                        size="small"
+                                                    />
+                                                ) : (
+                                                    city.name
+                                                )}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                {editRowId === city.id ? (
+                                                    <IconButton
+                                                        color="success"
+                                                        onClick={() => {
+                                                            dispatch(updateCity({ id: city.id, name: editCityName }))
+                                                                .then(() => {
+                                                                    setSnackbar({
+                                                                        open: true,
+                                                                        message: "City updated successfully!",
+                                                                        severity: "success"
+                                                                    });
+                                                                    setEditRowId(null);
+                                                                });
+                                                        }}
+                                                    >
+                                                        <Save />
+                                                    </IconButton>
+                                                ) : (
+                                                    <IconButton
+                                                        color="primary"
+                                                        onClick={() => {
+                                                            setEditRowId(city.id);
+                                                            setEditCityName(city.name);
+                                                        }}
+                                                    >
+                                                        <Edit />
+                                                    </IconButton>
+                                                )}
+
+                                                <IconButton
+                                                    color="error"
+                                                    onClick={() => setConfirmDeleteId(city.id)}
+                                                >
+                                                    <Delete />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+                    <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="xs" fullWidth>
+                        <DialogTitle sx={{ fontWeight: "bold", textAlign: "center" }}>
+                            Add New City
+                        </DialogTitle>
+                        <DialogContent>
+                            <TextField
+                                label="City Name"
+                                value={newCityName}
+                                onChange={(e) => setNewCityName(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                                sx={{ mt: 1 }}
+                            />
+                        </DialogContent>
+                        <DialogActions sx={{ justifyContent: "center", mb: 2 }}>
+                            <Button
+                                onClick={() => setOpenDialog(false)}
+                                variant="outlined"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    if (newCityName.trim()) {
+                                        dispatch(createCity({ name: newCityName.trim() }))
+                                            .then(() => {
+                                                setSnackbar({
+                                                    open: true,
+                                                    message: "City added successfully!",
+                                                    severity: "success"
+                                                });
+                                                setNewCityName("");
+                                                setOpenDialog(false);
+                                            });
+                                    }
+                                }}
+                                variant="contained"
+                            >
+                                Create
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                    <Dialog
+                        open={!!confirmDeleteId}
+                        onClose={() => setConfirmDeleteId(null)}
+                    >
+                        <DialogTitle>Confirm Deletion</DialogTitle>
+                        <DialogContent>
+                            <Typography>Are you sure you want to delete this city?</Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
+                            <Button
+                                onClick={() => {
+                                    dispatch(deleteCity(confirmDeleteId)).then(() => {
+                                        setSnackbar({
+                                            open: true,
+                                            message: "City deleted successfully!",
+                                            severity: "success"
+                                        });
+                                        setConfirmDeleteId(null);
+                                    });
+                                }}
+                                color="error"
+                                variant="contained"
+                            >
+                                Delete
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                </CardContent>
+            </Card>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: "100%" }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
 
-export default UserManagement;
+export default CityManagement;

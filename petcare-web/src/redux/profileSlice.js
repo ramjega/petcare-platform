@@ -62,6 +62,51 @@ export const fetchProfessionals = createAsyncThunk("profile/fetchProfessionals",
     }
 });
 
+// Toggle User Status
+export const toggleUserStatus = createAsyncThunk(
+    "user/toggleStatus",
+    async ({ id, status }, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+
+            const endpoint =
+                status === "active"
+                    ? `http://localhost:8000/api/profile/activate/${id}`
+                    : `http://localhost:8000/api/profile/suspend/${id}`;
+
+            const response = await axios.put(endpoint, null, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to update user status");
+        }
+    }
+);
+
+
+// Delete User
+export const deleteUser = createAsyncThunk(
+    "user/delete",
+    async (id, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            await axios.delete(`http://localhost:8000/api/profile/delete/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return id;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to delete user");
+        }
+    }
+);
+
+
 // **Profile Slice**
 const profileSlice = createSlice({
     name: "profile",
@@ -121,6 +166,28 @@ const profileSlice = createSlice({
                 state.user = action.payload; // Update user state with new profile
             })
             .addCase(updateUserProfile.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
+            // Toggle Status
+            .addCase(toggleUserStatus.fulfilled, (state, action) => {
+                const updatedUser = action.payload;
+                const index = state.users.findIndex(u => u.id === updatedUser.id);
+                if (index !== -1) {
+                    state.users[index] = updatedUser;
+                }
+            })
+            .addCase(toggleUserStatus.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+
+            // Delete User
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                state.users = state.users.filter(user => user.id !== action.payload);
+            })
+            .addCase(deleteUser.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             });

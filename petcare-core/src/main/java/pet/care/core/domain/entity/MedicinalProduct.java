@@ -25,8 +25,5 @@ public class MedicinalProduct extends ResourceEntity {
     private String medicineName;
     private String brandName;
     private MedicationType type;
-    private String dosageForm;
-    private MedicationPackageType packageType;
-
 
 }

@@ -8,6 +8,7 @@ import sessionReducer from "./sessionSlice";
 import appointmentReducer from "./appointmentSlice";
 import organizationReducer from "./organizationSlice";
 import cityReducer from "./citySlice";
+import medicinalProductReducer from "./medicinalProductSlice";
 
 export const store = configureStore({
     reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
         appointment: appointmentReducer,
         organization: organizationReducer,
         city: cityReducer,
+        medicinalProduct: medicinalProductReducer,
 
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger)

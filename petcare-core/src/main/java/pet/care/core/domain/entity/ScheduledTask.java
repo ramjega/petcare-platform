@@ -84,7 +84,7 @@ public class ScheduledTask extends ResourceEntity {
 
     private String resultCode;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<String, String> data = Collections.emptyMap();
 
     @JsonIgnore

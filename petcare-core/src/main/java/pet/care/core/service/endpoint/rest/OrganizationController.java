@@ -32,9 +32,14 @@ public class OrganizationController {
         return response(result);
     }
 
-    @PatchMapping(value = "/api/organization/update")
+    @PutMapping(value = "/api/organization/update")
     public ResponseEntity update(@RequestBody Organization value) {
         Result<Organization> result = service.update(value);
         return response(result);
+    }
+
+    @DeleteMapping(value = "/api/organization/delete/{id}")
+    public ResponseEntity delete(@PathVariable Long id) {
+        return response(service.delete(id));
     }
 }

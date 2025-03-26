@@ -3,7 +3,9 @@ package pet.care.core.service.endpoint.rest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pet.care.core.domain.entity.City;
 import pet.care.core.domain.entity.MedicinalProduct;
+import pet.care.core.domain.entity.Organization;
 import pet.care.core.domain.wrapper.ListHolder;
 import pet.care.core.service.common.ResourcePatch;
 import pet.care.core.service.common.Result;
@@ -23,31 +25,26 @@ public class MedicinalProductController {
         this.service = context.getBean(MedicinalProductService.class);
     }
 
-    @GetMapping(value = "/medicinalProduct/get")
-    public ResponseEntity get() {
-        ListHolder<MedicinalProduct> holder = new ListHolder<>(service.query());
-        return response(Result.of(holder));
+    @GetMapping(value = "/api/medicinalProducts")
+    public ResponseEntity<List<MedicinalProduct>> get() {
+        return ResponseEntity.ok(service.query());
     }
 
-    @PostMapping(value = "/medicinalProduct/create")
+    @PostMapping(value = "/api/medicinalProduct/create")
     public ResponseEntity register(@RequestBody MedicinalProduct value) {
         Result<MedicinalProduct> result = service.create(value);
         return response(result);
     }
 
-    @PatchMapping(value = "/medicinalProduct/patch/{id}")
-    public ResponseEntity update(@PathVariable Long id, @RequestBody List<ResourcePatch> patches) {
-        Result<MedicinalProduct> result = service.patch(id, patches);
+
+    @PutMapping(value = "/api/medicinalProduct/update")
+    public ResponseEntity update(@RequestBody MedicinalProduct value) {
+        Result<MedicinalProduct> result = service.update(value);
         return response(result);
     }
 
-    @DeleteMapping(value = "/medicinalProduct/delete/{id}")
+    @DeleteMapping(value = "/api/medicinalProduct/delete/{id}")
     public ResponseEntity delete(@PathVariable Long id) {
-        Result<MedicinalProduct> result = service.delete(id);
-        if (result.code().isSuccess()) {
-            return response(Result.of("Deleted Successfully"));
-        } else {
-            return response(result);
-        }
+        return response(service.delete(id));
     }
 }

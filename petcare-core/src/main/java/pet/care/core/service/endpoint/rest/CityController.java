@@ -4,10 +4,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pet.care.core.domain.entity.City;
+import pet.care.core.domain.entity.Pet;
 import pet.care.core.service.common.Result;
 import pet.care.core.service.module.CityService;
 
 import java.util.List;
+import java.util.Optional;
 
 import static pet.care.core.service.common.Converter.response;
 
@@ -32,9 +34,14 @@ public class CityController {
         return response(result);
     }
 
-    @PatchMapping(value = "/api/city/update")
+    @PutMapping(value = "/api/city/update")
     public ResponseEntity update(@RequestBody City value) {
         Result<City> result = service.update(value);
         return response(result);
+    }
+
+    @DeleteMapping(value = "/api/city/delete/{id}")
+    public ResponseEntity delete(@PathVariable Long id) {
+        return response(service.delete(id));
     }
 }

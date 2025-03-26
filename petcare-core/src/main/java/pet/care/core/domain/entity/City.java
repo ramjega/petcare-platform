@@ -20,5 +20,9 @@ public class City extends ResourceEntity {
     protected Long id;
 
     private String name;
+
+    private String district;
+
+    private String province;
 }
 

@@ -106,17 +106,17 @@ public class ProfileController {
 
     }
 
-    @PostMapping(value = "/profile/suspend/{id}")
+    @PutMapping(value = "/api/profile/suspend/{id}")
     public ResponseEntity suspend(@PathVariable Long id) {
         return response(service.suspend(id));
     }
 
-    @PostMapping(value = "/profile/activate/{id}")
+    @PutMapping(value = "/api/profile/activate/{id}")
     public ResponseEntity activate(@PathVariable Long id) {
         return response(service.activate(id));
     }
 
-    @DeleteMapping(value = "/profile/delete/{id}")
+    @DeleteMapping(value = "/api/profile/delete/{id}")
     public ResponseEntity delete(@PathVariable Long id) {
         Result<Profile> result = service.delete(id);
         if (result.code().isSuccess()) {

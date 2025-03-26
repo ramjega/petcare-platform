@@ -5,15 +5,13 @@ import org.joda.time.LocalDate;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import pet.care.core.domain.entity.*;
-import pet.care.core.domain.type.Gender;
-import pet.care.core.domain.type.PetType;
-import pet.care.core.domain.type.ScheduleStatusValue;
-import pet.care.core.domain.type.Speciality;
+import pet.care.core.domain.type.*;
 import pet.care.core.repo.jpa.CityRepo;
 import pet.care.core.service.endpoint.auth.SecurityHolder;
 import pet.care.core.service.factory.CityFactory;
 import pet.care.core.service.factory.OrganizationFactory;
 import pet.care.core.service.factory.ProfileFactory;
+import pet.care.core.service.module.MedicinalProductService;
 import pet.care.core.service.module.PetService;
 import pet.care.core.service.module.ScheduleService;
 import pet.care.core.service.util.DateTimeFormats;
@@ -26,6 +24,7 @@ import javax.annotation.PostConstruct;
 public class DataManagementService {
     private final CityRepo cityRepo;
     private final ScheduleService scheduleService;
+    private final MedicinalProductService productService;
     private final PetService petService;
 
     private final ProfileFactory profileFactory;
@@ -35,6 +34,7 @@ public class DataManagementService {
     public DataManagementService(ApplicationContext ctx) {
         this.cityRepo = ctx.getBean(CityRepo.class);
         this.scheduleService = ctx.getBean(ScheduleService.class);
+        this.productService = ctx.getBean(MedicinalProductService.class);
         this.petService = ctx.getBean(PetService.class);
 
         this.profileFactory = ctx.getBean(ProfileFactory.class);
@@ -63,17 +63,17 @@ public class DataManagementService {
             City kandy = cityFactory.createCity("Kandy").unwrap();
             organizationFactory.createOrganization("Kandy Vet Hospital", kandy);
 
-            // Creating users
+            // Creating Users
             profileFactory.createAdmin("Gowri", "0776914220", "Test@123").unwrap();
             Profile ram = profileFactory.createPetOwner("Ram", "0775228994", "Test@123").unwrap();
             profileFactory.createCommunity("Community", "0777970070", "Test@123").unwrap();
 
-            // Creating professionals
+            // Creating Professionals
             Profile sriram = profileFactory.createProfessional("Sriram", "0775228995", "Test@123", Speciality.Veterinary).unwrap();
             Profile jenuthan = profileFactory.createProfessional("Jenuthan", "0778667986", "Test@123", Speciality.Training).unwrap();
             Profile theepan = profileFactory.createProfessional("Theepan", "0776621792", "Test@123", Speciality.Grooming).unwrap();
 
-//             Creating schedules
+//             Creating initial Schedules
             Schedule schedule1 = new Schedule();
             schedule1.setRecurringRule("DTSTART=" + DateTimeFormats.convertUtcLongToUtcString(TimeUtils.startTimeOfLocalToday()) + ";FREQ=WEEKLY;BYDAY=MO,TU,WE,FR,SU;INTERVAL=1");
             schedule1.setMaxAllowed(10L);
@@ -98,7 +98,7 @@ public class DataManagementService {
             schedule3.setOrganization(colomboGroomingCentre);
             scheduleService.create(schedule3).unwrap();
 
-            // Creating pets
+            // Creating initial Pets
             Pet pet1 = new Pet();
             pet1.setName("Buddy");
             pet1.setType(PetType.Dog);
@@ -128,6 +128,32 @@ public class DataManagementService {
             pet3.setColor("Golden");
             pet3.setOwner(ram);
             petService.create(pet3).unwrap();
+
+
+            // Creating initial Medicinal Products
+            MedicinalProduct product1 = new MedicinalProduct();
+            product1.setBrandName("PetCare Pharma");
+            product1.setMedicineName("Amoxicillin 250mg");
+            product1.setType(MedicationType.tablet);
+            productService.create(product1).unwrap();
+
+            MedicinalProduct product2 = new MedicinalProduct();
+            product2.setBrandName("VetStrong");
+            product2.setMedicineName("Ivermectin Injection");
+            product2.setType(MedicationType.injection);
+            productService.create(product2).unwrap();
+
+            MedicinalProduct product3 = new MedicinalProduct();
+            product3.setBrandName("MediPet");
+            product3.setMedicineName("Rabies Vaccine");
+            product3.setType(MedicationType.injection);
+            productService.create(product3).unwrap();
+
+            MedicinalProduct product4 = new MedicinalProduct();
+            product4.setBrandName("AquaVet");
+            product4.setMedicineName("Electrolyte Saline");
+            product4.setType(MedicationType.saline);
+            productService.create(product4).unwrap();
         }
 
     }
