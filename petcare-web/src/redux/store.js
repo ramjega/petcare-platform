@@ -9,6 +9,9 @@ import appointmentReducer from "./appointmentSlice";
 import organizationReducer from "./organizationSlice";
 import cityReducer from "./citySlice";
 import medicinalProductReducer from "./medicinalProductSlice";
+import dispenseReducer from "./dispenseSlice";
+import observationReducer from "./observationSlice";
+import reminderReducer from "./reminderSlice";
 
 export const store = configureStore({
     reducer: {
@@ -21,7 +24,9 @@ export const store = configureStore({
         organization: organizationReducer,
         city: cityReducer,
         medicinalProduct: medicinalProductReducer,
-
+        dispense: dispenseReducer,
+        observation: observationReducer,
+        reminder: reminderReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger)
 });

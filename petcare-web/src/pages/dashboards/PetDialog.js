@@ -71,7 +71,6 @@ const PetDialog = ({open, onClose, pet = null, mode}) => {
     }, [pet, isEditMode, open]);
 
     const handleDateChange = (date) => {
-        console.log("date", date)
         setBirthDate(date);
         const formattedDate = format(date, "yyyy-MM-dd");
         handleInputChange({target: {name: "birthDate", value: formattedDate}});

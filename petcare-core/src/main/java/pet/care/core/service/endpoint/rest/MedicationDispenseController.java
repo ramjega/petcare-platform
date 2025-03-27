@@ -4,6 +4,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pet.care.core.domain.entity.MedicationDispense;
+import pet.care.core.domain.entity.Organization;
 import pet.care.core.domain.wrapper.ListHolder;
 import pet.care.core.repo.jpa.MedicationDispenseRepo;
 import pet.care.core.service.common.ResourcePatch;
@@ -28,26 +29,18 @@ public class MedicationDispenseController {
         this.repo = context.getBean(MedicationDispenseRepo.class);
     }
 
-    @GetMapping(value = "/medicationDispense/get")
-    public ResponseEntity get() {
-        ListHolder<MedicationDispense> holder = new ListHolder<>(repo.findByCustomerId(SecurityHolder.getProfileId()));
-        return response(Result.of(holder));
-    }
-
     @GetMapping(value = "/medicationDispense/get/pet/{id}")
     public ResponseEntity getByPet(@PathVariable Long id) {
         ListHolder<MedicationDispense> holder = new ListHolder<>(repo.findByPetId(id));
         return response(Result.of(holder));
     }
 
-    @GetMapping(value = "/medicationDispense/get/appointment/{id}")
-    public ResponseEntity getByAppointment(@PathVariable Long id) {
-        ListHolder<MedicationDispense> holder = new ListHolder<>(repo.findByAppointmentId(id));
-        return response(Result.of(holder));
+    @GetMapping(value = "/api/dispense/appointment/{appointmentId}")
+    public ResponseEntity<List<MedicationDispense>> getByAppointment(@PathVariable Long appointmentId) {
+       return ResponseEntity.ok(repo.findByAppointmentId(appointmentId));
     }
 
-
-    @PostMapping(value = "/medicationDispense/create")
+    @PostMapping(value = "/api/dispense/create")
     public ResponseEntity register(@RequestBody MedicationDispense value) {
         Result<MedicationDispense> result = service.create(value);
         return response(result);

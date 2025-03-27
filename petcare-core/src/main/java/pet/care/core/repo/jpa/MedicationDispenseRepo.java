@@ -8,6 +8,5 @@ import java.util.Optional;
 
 public interface MedicationDispenseRepo extends JpaRepository<MedicationDispense,Long> {
     List<MedicationDispense> findByAppointmentId(Long id);
-    List<MedicationDispense> findByCustomerId(Long id);
     List<MedicationDispense> findByPetId(Long id);
 }

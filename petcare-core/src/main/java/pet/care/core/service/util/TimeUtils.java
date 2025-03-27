@@ -26,6 +26,11 @@ public class TimeUtils {
         return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(days).getMillis();
     }
 
+    public static long startTimeOfLocalTodayPlusHours(int hours) {
+        return DateTime.now(TIME_ZONE_LOCAL).withTimeAtStartOfDay().plusHours(hours).getMillis();
+    }
+
+
     public static long startTimeOfUtcGivenTime(long givenTime) {
         return new DateTime(givenTime).withTimeAtStartOfDay().getMillis();
     }

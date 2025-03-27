@@ -12,21 +12,15 @@ import javax.persistence.*;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 
-public class MedicationDispense extends ResourceEntity {
+public class Reminder extends ResourceEntity {
 
     @Id
-    @GeneratedValue(generator = "medicineDispense_id_generator")
+    @GeneratedValue(generator = "reminder_id_generator")
     protected Long id;
 
-    private int quantity;
+    private Long reminderDate;
 
-    private String frequency;
-
-    private String notes;
-
-    @ManyToOne
-    @JoinColumn(name = "medicinalProductId", referencedColumnName = "id")
-    private MedicinalProduct medicinalProduct;
+    private String message;
 
     @ManyToOne
     @JoinColumn(name = "professionalId", referencedColumnName = "id")
