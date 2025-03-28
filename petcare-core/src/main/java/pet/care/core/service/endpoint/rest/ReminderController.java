@@ -41,4 +41,9 @@ public class ReminderController {
         return response(result);
     }
 
+    @DeleteMapping(value = "/api/reminder/delete/{id}")
+    public ResponseEntity delete(@PathVariable Long id) {
+        return response(service.delete(id));
+    }
+
 }

@@ -20,6 +20,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
+    "chartjs-plugin-annotation": "^3.1.0",
     "colorthief": "^2.6.0",
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.13",

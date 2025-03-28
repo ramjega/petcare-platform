@@ -12,6 +12,8 @@ import medicinalProductReducer from "./medicinalProductSlice";
 import dispenseReducer from "./dispenseSlice";
 import observationReducer from "./observationSlice";
 import reminderReducer from "./reminderSlice";
+import growthDataReducer from "./growthDataSlice";
+import activityLogReducer from "./activityLogSlice";
 
 export const store = configureStore({
     reducer: {
@@ -26,7 +28,9 @@ export const store = configureStore({
         medicinalProduct: medicinalProductReducer,
         dispense: dispenseReducer,
         observation: observationReducer,
-        reminder: reminderReducer
+        reminder: reminderReducer,
+        growthData: growthDataReducer,
+        activityLog: activityLogReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger)
 });

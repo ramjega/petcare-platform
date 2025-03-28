@@ -57,6 +57,20 @@ export const fetchRemindersByPet = createAsyncThunk(
     }
 );
 
+export const deleteReminder = createAsyncThunk("reminders/delete", async (id, { rejectWithValue, getState }) => {
+    try {
+        const token = getState().auth.token;
+        await axios.delete(`${BASE_URL}/reminder/delete/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        return id;
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || "Failed to delete reminder");
+    }
+});
+
 const reminderSlice = createSlice({
     name: "reminder",
     initialState: {
@@ -84,6 +98,9 @@ const reminderSlice = createSlice({
             .addCase(fetchRemindersByPet.fulfilled, (state, action) => {
                 state.reminders = action.payload;
                 state.status = "succeeded";
+            })
+            .addCase(deleteReminder.fulfilled, (state, action) => {
+                state.reminders = state.reminders.filter(r => r.id !== action.payload);
             });
     },
 });
