@@ -324,9 +324,9 @@ const ScheduleManagementComponent = () => {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case "Active": return <CheckCircle fontSize="small" />;
-            case "Cancelled": return <Cancel fontSize="small" />;
-            default: return <Schedule fontSize="small" />;
+            case "Active": return <CheckCircle color="inherit" fontSize="small" />;
+            case "Cancelled": return <Cancel color="inherit" fontSize="small" />;
+            default: return <Schedule color="inherit" fontSize="small" />;
         }
     };
 
@@ -385,9 +385,10 @@ const ScheduleManagementComponent = () => {
                         </Typography>
                     </Paper>
                 ) : (
-                    <Grid container spacing={3}>
+                    <Grid container spacing={3} mb={1}>
                         {schedules.map((schedule) => {
                             const parsedRule = parseRRuleManually(schedule.recurringRule);
+                            const { border } = statusColors[schedule.status] || statusColors.Scheduled;
                             return (
                                 <Grid item key={schedule.id} xs={12} sm={6} lg={4}>
                                     <ScheduleCard onClick={() => navigate(`/dashboard/schedule/${schedule.id}`)}>
@@ -403,11 +404,20 @@ const ScheduleManagementComponent = () => {
                                                 <Typography variant="body1" color="text.secondary">
                                                     {parsedRule.startTime}
                                                 </Typography>
-                                                <StatusChip
-                                                    status={schedule.status}
-                                                    icon={getStatusIcon(schedule.status)}
+                                                <Chip
                                                     label={schedule.status}
+                                                    variant="filled"
+                                                    sx={{
+                                                        fontWeight: "bold",
+                                                        borderRadius: 16,
+                                                        backgroundColor: border,
+                                                        color: theme.palette.getContrastText(border),
+                                                        padding: "6px 16px",
+                                                        fontSize: "0.9rem",
+                                                        height: "auto",
+                                                    }}
                                                 />
+
                                             </Box>
 
                                             <Divider sx={{ my: 1.5 }} />

@@ -46,17 +46,6 @@ import {createSession, fetchSessions, fetchUpcomingSessions} from "../../redux/s
 import {fetchOrganizations} from "../../redux/organizationSlice";
 import {statusColors} from "../../utils/colors";
 
-const StatusChip = styled(Chip)(({ theme, status }) => ({
-    fontWeight: 600,
-    borderRadius: '8px',
-    backgroundColor: statusColors[status]?.background || theme.palette.grey[200],
-    color: statusColors[status]?.text || theme.palette.text.primary,
-    border: `1px solid ${statusColors[status]?.border || theme.palette.grey[400]}`,
-    // Remove position: absolute and related properties
-    flexShrink: 0, // Prevent shrinking
-    marginLeft: theme.spacing(1) // Add some spacing
-}));
-
 const SessionCard = styled(Card)(({theme}) => ({
     borderRadius: '12px',
     transition: 'all 0.3s ease',
@@ -367,65 +356,83 @@ const SessionManagementComponent = () => {
                         {filteredSessions
                             .slice()
                             .sort((a, b) => a.start - b.start)
-                            .map((session) => (
-                                <Grid item key={session.id} xs={12} sm={6} lg={4}>
-                                    <SessionCard onClick={() => navigate(`/dashboard/session/${session.id}`)}>
-                                        <CardContent sx={{ flexGrow: 1 }}>
-                                            {/* Time and Status in one line */}
+                            .map((session) => {
+                                const { border } = statusColors[session.status] || statusColors.Scheduled;
+                                return (
+
+                                    <Grid item key={session.id} xs={12} sm={6} lg={4}>
+                                        <SessionCard onClick={() => navigate(`/dashboard/session/${session.id}`)}>
+                                            <CardContent sx={{ flexGrow: 1 }}>
+                                                {/* Time and Status in one line */}
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    width: '100%',
+                                                    mb: 1.5
+                                                }}>
+                                                    <Typography variant="body1" fontWeight="500">
+                                                        {formatDate(session.start)}
+                                                    </Typography>
+                                                    <Chip
+                                                        label={session.status === "Started" ? "Ongoing" : session.status}
+                                                        variant="filled"
+                                                        sx={{
+                                                            fontWeight: "bold",
+                                                            borderRadius: 16,
+                                                            backgroundColor: border,
+                                                            color: theme.palette.getContrastText(border),
+                                                            padding: "6px 16px",
+                                                            fontSize: "0.9rem",
+                                                            height: "auto",
+                                                        }}
+                                                    />
+                                                </Box>
+                                                <Box sx={{ mb: 2 }}>
+
+                                                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                                                        {formatTime(session.start)}
+                                                    </Typography>
+                                                </Box>
+
+                                                <Divider sx={{ my: 1.5 }} />
+
+                                                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+                                                    <DetailItem icon={<Group />} label="Max" value={session.maxAllowed} />
+                                                    <DetailItem icon={<CheckCircle />} label="Booked" value={session.booked} />
+                                                    <DetailItem icon={<AccessTime />} label="Next Token" value={session.nextToken} />
+                                                    <DetailItem
+                                                        icon={<Business />}
+                                                        label="Organization"
+                                                        value={session.organization?.name?.substring(0, 12) +
+                                                            (session.organization?.name?.length > 12 ? '...' : '')}
+                                                    />
+                                                </Box>
+                                            </CardContent>
+
+                                            {/* View Details footer */}
                                             <Box sx={{
+                                                p: 2,
                                                 display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                width: '100%',
-                                                mb: 1.5
+                                                justifyContent: 'flex-end',
+                                                alignItems: 'center'
                                             }}>
-                                                <Typography variant="body1" fontWeight="500">
-                                                    {formatTime(session.start)}
+                                                <Typography variant="body2" color="primary" sx={{ mr: 1 }}>
+                                                    View Details
                                                 </Typography>
-                                                <StatusChip
-                                                    status={session.status}
-                                                    icon={getStatusIcon(session.status)}
-                                                    label={session.status === "Started" ? "Ongoing" : session.status}
+                                                <ArrowForward
+                                                    color="primary"
+                                                    sx={{
+                                                        fontSize: 16,
+                                                        opacity: 0.7,
+                                                        transition: 'all 0.3s ease'
+                                                    }}
                                                 />
                                             </Box>
-
-                                            <Divider sx={{ my: 1.5 }} />
-
-                                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-                                                <DetailItem icon={<Group />} label="Max" value={session.maxAllowed} />
-                                                <DetailItem icon={<CheckCircle />} label="Booked" value={session.booked} />
-                                                <DetailItem icon={<AccessTime />} label="Next Token" value={session.nextToken} />
-                                                <DetailItem
-                                                    icon={<Business />}
-                                                    label="Organization"
-                                                    value={session.organization?.name?.substring(0, 12) +
-                                                        (session.organization?.name?.length > 12 ? '...' : '')}
-                                                />
-                                            </Box>
-                                        </CardContent>
-
-                                        {/* View Details footer */}
-                                        <Box sx={{
-                                            p: 2,
-                                            display: 'flex',
-                                            justifyContent: 'flex-end',
-                                            alignItems: 'center'
-                                        }}>
-                                            <Typography variant="body2" color="primary" sx={{ mr: 1 }}>
-                                                View Details
-                                            </Typography>
-                                            <ArrowForward
-                                                color="primary"
-                                                sx={{
-                                                    fontSize: 16,
-                                                    opacity: 0.7,
-                                                    transition: 'all 0.3s ease'
-                                                }}
-                                            />
-                                        </Box>
-                                    </SessionCard>
-                                </Grid>
-                            ))}
+                                        </SessionCard>
+                                    </Grid>
+                                )
+                            })}
                     </Grid>
                 )}
             </Box>
