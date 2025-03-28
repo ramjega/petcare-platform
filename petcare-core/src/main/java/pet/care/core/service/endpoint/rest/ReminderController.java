@@ -30,6 +30,11 @@ public class ReminderController {
         return ResponseEntity.ok(repo.findByAppointmentId(appointmentId));
     }
 
+    @GetMapping(value = "/api/reminder/pet/{petId}")
+    public ResponseEntity<List<Reminder>> getByPet(@PathVariable Long petId) {
+        return ResponseEntity.ok(repo.findByPetId(petId));
+    }
+
     @PostMapping(value = "/api/reminder/create")
     public ResponseEntity register(@RequestBody Reminder value) {
         Result<Reminder> result = service.create(value);

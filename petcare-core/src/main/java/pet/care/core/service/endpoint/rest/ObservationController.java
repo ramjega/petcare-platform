@@ -30,6 +30,11 @@ public class ObservationController {
         return ResponseEntity.ok(repo.findByAppointmentId(appointmentId));
     }
 
+    @GetMapping(value = "/api/observation/pet/{petId}")
+    public ResponseEntity<List<Observation>> getByPet(@PathVariable Long petId) {
+        return ResponseEntity.ok(repo.findByPetId(petId));
+    }
+
     @PostMapping(value = "/api/observation/create")
     public ResponseEntity register(@RequestBody Observation value) {
         Result<Observation> result = service.create(value);

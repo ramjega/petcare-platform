@@ -14,6 +14,7 @@ import pet.care.core.service.endpoint.rest.dto.AppointmentDto;
 import pet.care.core.service.module.AppointmentService;
 import pet.care.core.service.util.TimeUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
@@ -77,5 +78,10 @@ public class AppointmentController {
     public ResponseEntity cancel(@PathVariable Long id) {
         Result<Appointment> result = service.cancel(id);
         return response(result);
+    }
+
+    @GetMapping(value = "/api/appointment/pet/{petId}")
+    public ResponseEntity<List<Appointment>> getByPet(@PathVariable Long petId) {
+        return ResponseEntity.ok(repo.findByPetId(petId));
     }
 }

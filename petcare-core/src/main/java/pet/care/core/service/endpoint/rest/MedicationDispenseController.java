@@ -29,15 +29,14 @@ public class MedicationDispenseController {
         this.repo = context.getBean(MedicationDispenseRepo.class);
     }
 
-    @GetMapping(value = "/medicationDispense/get/pet/{id}")
-    public ResponseEntity getByPet(@PathVariable Long id) {
-        ListHolder<MedicationDispense> holder = new ListHolder<>(repo.findByPetId(id));
-        return response(Result.of(holder));
-    }
-
     @GetMapping(value = "/api/dispense/appointment/{appointmentId}")
     public ResponseEntity<List<MedicationDispense>> getByAppointment(@PathVariable Long appointmentId) {
        return ResponseEntity.ok(repo.findByAppointmentId(appointmentId));
+    }
+
+    @GetMapping(value = "/api/dispense/pet/{petId}")
+    public ResponseEntity<List<MedicationDispense>> getByPet(@PathVariable Long petId) {
+        return ResponseEntity.ok(repo.findByPetId(petId));
     }
 
     @PostMapping(value = "/api/dispense/create")

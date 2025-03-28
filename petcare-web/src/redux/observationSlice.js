@@ -38,6 +38,22 @@ export const fetchObservationsByAppointment = createAsyncThunk(
     }
 );
 
+// Fetch observations by pet
+export const fetchObservationsByPet = createAsyncThunk(
+    "observation/fetchByPet",
+    async (petId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.get(`${BASE_URL}/observation/pet/${petId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch observations");
+        }
+    }
+);
+
 
 const observationSlice = createSlice({
     name: "observation",
@@ -70,6 +86,10 @@ const observationSlice = createSlice({
             .addCase(fetchObservationsByAppointment.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
+            })
+            .addCase(fetchObservationsByPet.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.observations = action.payload;
             });
 
     },

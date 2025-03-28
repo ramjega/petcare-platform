@@ -50,6 +50,23 @@ export const fetchAppointmentById = createAsyncThunk(
     }
 );
 
+export const fetchAppointmentsByPet = createAsyncThunk(
+    "appointments/fetchByPet",
+    async (petId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.get(`${BASE_URL}/pet/${petId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch appointments");
+        }
+    }
+);
+
 // Book Appointment
 export const bookAppointment = createAsyncThunk("appointments/book", async (appointmentData, { rejectWithValue, getState }) => {
         try {
@@ -161,6 +178,11 @@ const appointmentSlice = createSlice({
             .addCase(fetchAppointmentById.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
+            })
+
+            .addCase(fetchAppointmentsByPet.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.appointments = action.payload;
             })
 
             // Book Appointment

@@ -39,6 +39,23 @@ export const fetchRemindersByAppointment = createAsyncThunk(
     }
 );
 
+// Fetch reminders by pet
+export const fetchRemindersByPet = createAsyncThunk(
+    "reminder/fetchByPet",
+    async (petId, { rejectWithValue, getState }) => {
+        try {
+            const token = getState().auth.token;
+            const response = await axios.get(`${BASE_URL}/reminder/pet/${petId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to fetch reminders");
+        }
+    }
+);
 
 const reminderSlice = createSlice({
     name: "reminder",
@@ -61,6 +78,10 @@ const reminderSlice = createSlice({
                 state.error = action.payload;
             })
             .addCase(fetchRemindersByAppointment.fulfilled, (state, action) => {
+                state.reminders = action.payload;
+                state.status = "succeeded";
+            })
+            .addCase(fetchRemindersByPet.fulfilled, (state, action) => {
                 state.reminders = action.payload;
                 state.status = "succeeded";
             });
