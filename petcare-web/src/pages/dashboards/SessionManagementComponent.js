@@ -1,41 +1,85 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {useCallback, useEffect, useRef, useState} from "react";
+import {useNavigate} from "react-router-dom";
 import {
+    Alert,
     Box,
-    Typography,
-    CircularProgress,
-    Grid,
+    Button,
     Card,
     CardContent,
-    Divider,
-    Button,
-    MenuItem,
-    FormControl,
-    Select,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
     Chip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Grid,
     IconButton,
     InputAdornment,
+    MenuItem,
+    Paper,
+    Snackbar,
+    styled,
+    TextField,
+    Typography,
     useMediaQuery,
-    useTheme, Snackbar, Alert, InputLabel, FormLabel, RadioGroup, FormControlLabel, Radio
+    useTheme
 } from "@mui/material";
-import {Add, Group, Event, FilterList, Close, Business, Male, Female} from "@mui/icons-material";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUpcomingSessions, createSession, fetchSessions } from "../../redux/sessionSlice";
+import {
+    AccessTime,
+    Add,
+    ArrowForward,
+    Business,
+    Cancel,
+    CheckCircle,
+    Close,
+    Event,
+    FilterList,
+    Group,
+    Schedule
+} from "@mui/icons-material";
+import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {useDispatch, useSelector} from "react-redux";
+import {createSession, fetchSessions, fetchUpcomingSessions} from "../../redux/sessionSlice";
 import {fetchOrganizations} from "../../redux/organizationSlice";
-import { statusColors } from "../../utils/colors";
+import {statusColors} from "../../utils/colors";
+
+const StatusChip = styled(Chip)(({ theme, status }) => ({
+    fontWeight: 600,
+    borderRadius: '8px',
+    backgroundColor: statusColors[status]?.background || theme.palette.grey[200],
+    color: statusColors[status]?.text || theme.palette.text.primary,
+    border: `1px solid ${statusColors[status]?.border || theme.palette.grey[400]}`,
+    // Remove position: absolute and related properties
+    flexShrink: 0, // Prevent shrinking
+    marginLeft: theme.spacing(1) // Add some spacing
+}));
+
+const SessionCard = styled(Card)(({theme}) => ({
+    borderRadius: '12px',
+    transition: 'all 0.3s ease',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    '&:hover': {
+        transform: 'translateY(-4px)',
+        boxShadow: theme.shadows[6],
+        '& .session-arrow': {
+            opacity: 1,
+            transform: 'translateX(4px)'
+        }
+    }
+}));
 
 const SessionManagementComponent = () => {
     const dispatch = useDispatch();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    const navigate = useNavigate();
 
-    const { sessions, status, error } = useSelector((state) => state.session);
+    const {sessions, status, error} = useSelector((state) => state.session);
     const {organizations} = useSelector((state) => state.organization);
 
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -46,22 +90,17 @@ const SessionManagementComponent = () => {
     const [snackbar, setSnackbar] = useState({open: false, message: "", severity: "success"});
     const formRef = useRef(null);
 
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
     const [sessionData, setSessionData] = useState({
         start: null,
         maxAllowed: "",
+        organizationId: ""
     });
 
     const [errors, setErrors] = useState({});
 
-    const navigate = useNavigate();
-
-
     const fetchSessionsByDate = useCallback((date) => {
         const timestamp = new Date(date).getTime();
-        dispatch(fetchSessions({ date: timestamp }));
+        dispatch(fetchSessions({date: timestamp}));
     }, [dispatch]);
 
     useEffect(() => {
@@ -87,21 +126,30 @@ const SessionManagementComponent = () => {
         }
     };
 
-    const formatDateTime = (timestamp) => {
+    const formatDate = (timestamp) => {
         const date = new Date(timestamp);
-        return date.toLocaleString("en-GB", {
+        return date.toLocaleDateString("en-GB", {
             weekday: "short",
             day: "2-digit",
             month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
+            year: "numeric"
         });
     };
 
+    const formatTime = (timestamp) => {
+        const date = new Date(timestamp);
+        const hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        // Convert 24h to 12h format
+        const twelveHour = hours % 12 || 12; // 0 becomes 12
+
+        return `${twelveHour}:${minutes} ${ampm}`;
+    };
+
     const handleOpenDialog = () => {
-        setSessionData({ start: null, maxAllowed: "" });
+        setSessionData({start: null, maxAllowed: "", organizationId: ""});
         setDialogOpen(true);
     };
 
@@ -111,14 +159,14 @@ const SessionManagementComponent = () => {
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setSessionData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => ({ ...prev, [name]: "" }));
+        const {name, value} = e.target;
+        setSessionData((prev) => ({...prev, [name]: value}));
+        setErrors((prev) => ({...prev, [name]: ""}));
     };
 
     const handleDateTimeChange = (date) => {
-        setSessionData((prev) => ({ ...prev, start: date }));
-        setErrors((prev) => ({ ...prev, start: "" }));
+        setSessionData((prev) => ({...prev, start: date}));
+        setErrors((prev) => ({...prev, start: ""}));
     };
 
     const filteredSessions = selectedStatus
@@ -136,7 +184,7 @@ const SessionManagementComponent = () => {
             const firstErrorField = Object.keys(newErrors)[0];
             const fieldRef = formRef.current?.querySelector(`[name="${firstErrorField}"]`);
             if (fieldRef) {
-                fieldRef.scrollIntoView({ behavior: "smooth", block: "center" });
+                fieldRef.scrollIntoView({behavior: "smooth", block: "center"});
                 fieldRef.focus();
             }
             return false;
@@ -152,7 +200,7 @@ const SessionManagementComponent = () => {
         const sessionPayload = {
             maxAllowed: sessionData.maxAllowed,
             start: sessionData.start ? sessionData.start.getTime() : null,
-            organization:{
+            organization: {
                 id: sessionData.organizationId
             }
         };
@@ -162,206 +210,286 @@ const SessionManagementComponent = () => {
                 if (createSession.fulfilled.match(result)) {
                     setDialogOpen(false);
                     setSnackbar({open: true, message: "Session created successfully!", severity: "success"});
+                    fetchSessionsByDate(selectedDate);
                 }
             })
             .finally(() => setLoading(false));
     };
 
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case "Scheduled":
+                return <Schedule color="inherit" fontSize="small"/>;
+            case "Started":
+                return <AccessTime color="inherit" fontSize="small"/>;
+            case "Completed":
+                return <CheckCircle color="inherit" fontSize="small"/>;
+            case "Cancelled":
+                return <Cancel color="inherit" fontSize="small"/>;
+            default:
+                return <Event color="inherit" fontSize="small"/>;
+        }
+    };
 
     return (
-        <Box sx={{ padding: 3, backgroundColor: "#f4f6f9", minHeight: "100vh" }}>
-            {/* Header */}
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
+        <Box sx={{p: 2}}>
+            {/* Header and Create Button */}
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 3,
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: 2
+            }}>
+                <Typography variant="h5" fontWeight="600">
+                    <Schedule sx={{verticalAlign: 'middle', mr: 1, color: theme.palette.primary.main}}/>
+                    Manage Sessions
+                </Typography>
                 <Button
                     variant="contained"
-                    startIcon={<Add />}
+                    startIcon={<Add/>}
                     onClick={handleOpenDialog}
                     sx={{
-                        backgroundColor: "#1976d2",
-                        "&:hover": { backgroundColor: "#1565c0" },
-                        width: isMobile ? "100%" : "auto",
+                        borderRadius: '8px',
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        boxShadow: 'none',
+                        '&:hover': {
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }
                     }}
                 >
-                    Session
+                    New Session
                 </Button>
             </Box>
 
             {/* Filters Section */}
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", sm: "row" },
-                    alignItems: "left",
-                    gap: 2,
-                    mb: 3,
-                    backgroundColor: "#fff",
-                    padding: 2,
-                    borderRadius: 2,
-                    boxShadow: 1,
-                }}
-            >
-                {/* Date Picker */}
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DatePicker
-                        label="Select Date"
-                        value={selectedDate}
-                        onChange={handleDateChange}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                fullWidth
-                                sx={{ width: { xs: "100%", sm: "200px" } }}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Event color="action" />
-                                        </InputAdornment>
-                                    ),
+            <Paper sx={{
+                p: 2,
+                mb: 3,
+                borderRadius: '12px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+            }}>
+                <Grid container spacing={2} alignItems="center">
+                    {/* Date Picker */}
+                    <Grid item xs={12} sm={4}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
+                                label="Select Date"
+                                value={selectedDate}
+                                onChange={handleDateChange}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        InputProps: {
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Event color="action"/>
+                                                </InputAdornment>
+                                            ),
+                                        }
+                                    }
                                 }}
                             />
-                        )}
-                    />
-                </LocalizationProvider>
+                        </LocalizationProvider>
+                    </Grid>
 
-                {/* Status Dropdown */}
-                <FormControl sx={{ width: { xs: "100%", sm: "200px" } }}>
-                    <Select
-                        value={selectedStatus}
-                        onChange={handleStatusChange}
-                        displayEmpty
-                        startAdornment={
-                            <InputAdornment position="start">
-                                <FilterList color="action" />
-                            </InputAdornment>
-                        }
-                    >
-                        <MenuItem value="">All Statuses</MenuItem>
-                        <MenuItem value="Scheduled">Scheduled</MenuItem>
-                        <MenuItem value="Started">Ongoing</MenuItem>
-                        <MenuItem value="Completed">Completed</MenuItem>
-                        <MenuItem value="Cancelled">Cancelled</MenuItem>
-                    </Select>
-                </FormControl>
+                    {/* Status Dropdown */}
+                    <Grid item xs={12} sm={4}>
+                        <TextField
+                            select
+                            fullWidth
+                            label="Filter by Status"
+                            value={selectedStatus}
+                            onChange={handleStatusChange}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <FilterList color="action"/>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        >
+                            <MenuItem value="">All Statuses</MenuItem>
+                            <MenuItem value="Scheduled">Scheduled</MenuItem>
+                            <MenuItem value="Started">Ongoing</MenuItem>
+                            <MenuItem value="Completed">Completed</MenuItem>
+                            <MenuItem value="Cancelled">Cancelled</MenuItem>
+                        </TextField>
+                    </Grid>
 
-                {/* Upcoming Filter Toggle */}
-                <Button
-                    variant="outlined"
-                    onClick={toggleUpcomingFilter}
-                    sx={{
-                        width: { xs: "100%", sm: "200px" },
-                        borderRadius: 16,
-                        borderColor: showUpcoming ? "#1976d2" : "#aaa",
-                        color: showUpcoming ? "#fff" : "#1976d2",
-                        backgroundColor: showUpcoming ? "#1976d2" : "transparent",
-                        "&:hover": { backgroundColor: showUpcoming ? "#115293" : "#f0f0f0" },
-                    }}
-                >
-                    Upcoming
-                </Button>
-            </Box>
+                    {/* Upcoming Filter */}
+                    <Grid item xs={12} sm={4}>
+                        <Button
+                            fullWidth
+                            variant={showUpcoming ? "contained" : "outlined"}
+                            onClick={toggleUpcomingFilter}
+                            startIcon={<Event/>}
+                            sx={{
+                                borderRadius: '8px',
+                                textTransform: 'none'
+                            }}
+                        >
+                            {showUpcoming ? 'Showing Upcoming' : 'Show Upcoming'}
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Paper>
 
             {/* Session List */}
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{mt: 2}}>
                 {status === "loading" ? (
-                    <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+                    <Box sx={{display: 'flex', justifyContent: 'center', pt: 4}}>
+                        <CircularProgress size={60}/>
+                    </Box>
                 ) : error ? (
-                    <Typography color="error" textAlign="center">{error}</Typography>
+                    <Alert severity="error" sx={{mb: 3}}>
+                        {error}
+                    </Alert>
                 ) : filteredSessions.length === 0 ? (
-                    <Typography textAlign="center">No sessions found. Try different dates</Typography>
+                    <Paper sx={{
+                        p: 4,
+                        textAlign: 'center',
+                        borderRadius: '12px',
+                        backgroundColor: theme.palette.background.paper
+                    }}>
+                        <Event sx={{fontSize: 60, color: theme.palette.text.disabled, mb: 2}}/>
+                        <Typography variant="h6" color="text.secondary">
+                            No sessions found
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{mt: 1}}>
+                            Try adjusting your filters or create a new session
+                        </Typography>
+                    </Paper>
                 ) : (
-                    <Grid container spacing={3} sx={{ minWidth: "100%" }}>
+                    <Grid container spacing={3}>
                         {filteredSessions
                             .slice()
                             .sort((a, b) => a.start - b.start)
-                            .map((session, index) => {
-                                const { border, text } = statusColors[session.status] || statusColors.Scheduled;
-                                return (
-                                    <Grid item key={session.id} xs={12} sm={6} md={4} sx={{ minWidth: "300px" }}>
-                                        <Card
-                                            sx={{
-                                                borderRadius: 2,
-                                                boxShadow: 3,
-                                                position: "relative",
-                                                transition: "0.3s",
-                                                "&:hover": { transform: "scale(1.02)", boxShadow: 6 },
-                                                cursor: "pointer",
-                                            }}
-                                            onClick={() => navigate(`/dashboard/session/${session.id}`)}
-                                        >
-                                            <Chip
-                                                label={session.status === "Started" ? "Ongoing" : session.status}
-                                                variant="outlined"
+                            .map((session) => (
+                                <Grid item key={session.id} xs={12} sm={6} lg={4}>
+                                    <SessionCard onClick={() => navigate(`/dashboard/session/${session.id}`)}>
+                                        <CardContent sx={{ flexGrow: 1 }}>
+                                            {/* Time and Status in one line */}
+                                            <Box sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                width: '100%',
+                                                mb: 1.5
+                                            }}>
+                                                <Typography variant="body1" fontWeight="500">
+                                                    {formatTime(session.start)}
+                                                </Typography>
+                                                <StatusChip
+                                                    status={session.status}
+                                                    icon={getStatusIcon(session.status)}
+                                                    label={session.status === "Started" ? "Ongoing" : session.status}
+                                                />
+                                            </Box>
+
+                                            <Divider sx={{ my: 1.5 }} />
+
+                                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+                                                <DetailItem icon={<Group />} label="Max" value={session.maxAllowed} />
+                                                <DetailItem icon={<CheckCircle />} label="Booked" value={session.booked} />
+                                                <DetailItem icon={<AccessTime />} label="Next Token" value={session.nextToken} />
+                                                <DetailItem
+                                                    icon={<Business />}
+                                                    label="Organization"
+                                                    value={session.organization?.name?.substring(0, 12) +
+                                                        (session.organization?.name?.length > 12 ? '...' : '')}
+                                                />
+                                            </Box>
+                                        </CardContent>
+
+                                        {/* View Details footer */}
+                                        <Box sx={{
+                                            p: 2,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            alignItems: 'center'
+                                        }}>
+                                            <Typography variant="body2" color="primary" sx={{ mr: 1 }}>
+                                                View Details
+                                            </Typography>
+                                            <ArrowForward
+                                                color="primary"
                                                 sx={{
-                                                    position: "absolute",
-                                                    top: 8,
-                                                    right: 8,
-                                                    fontWeight: "bold",
-                                                    borderRadius: 16,
-                                                    borderColor: border,
-                                                    color: text,
+                                                    fontSize: 16,
+                                                    opacity: 0.7,
+                                                    transition: 'all 0.3s ease'
                                                 }}
                                             />
-                                            <CardContent>
-                                                <Typography variant="h6" color="primary">
-                                                    Session {index + 1}
-                                                </Typography>
-                                                <Divider sx={{ my: 1 }} />
-                                                <Typography variant="body2">📆 Start: <b>{formatDateTime(session.start)}</b></Typography>
-                                                <Typography variant="body2">👥 Max Allowed: <b>{session.maxAllowed}</b></Typography>
-                                                <Typography variant="body2">🎟 Next Token: <b>{session.nextToken}</b></Typography>
-                                                <Typography variant="body2">📌 Booked: <b>{session.booked}</b></Typography>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                );
-                            })}
+                                        </Box>
+                                    </SessionCard>
+                                </Grid>
+                            ))}
                     </Grid>
                 )}
             </Box>
-
             {/* Create Session Dialog */}
-            <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="xs" fullWidth>
-                <DialogTitle sx={{ textAlign: "center", fontWeight: "bold", color: "#1976d2" }}>
+            <Dialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: '12px'
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    py: 2,
+                    pr: 6
+                }}>
+                    <Add color="primary"/>
                     Create New Session
                     <IconButton
                         aria-label="close"
                         onClick={handleCloseDialog}
                         sx={{
-                            position: "absolute",
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
+                            position: 'absolute',
+                            right: 12,
+                            top: 12,
                         }}
                     >
-                        <Close />
+                        <Close/>
                     </IconButton>
                 </DialogTitle>
-                <DialogContent ref={formRef} sx={{ maxHeight: "70vh", overflowY: "auto", p: 2 }}>
-                    <Grid container spacing={2} alignItems="center" mt={2}>
-                        {/* Start Time Picker */}
+                <DialogContent ref={formRef} sx={{py: 3}}>
+                    <Grid container spacing={3}>
                         <Grid item xs={12}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <FormControl fullWidth>
-                                    <DateTimePicker
-                                        label="Start Time"
-                                        value={sessionData.start}
-                                        onChange={handleDateTimeChange}
-                                        slotProps={{
-                                            textField: {
-                                                variant: 'outlined',
-                                                error: !!errors.start,
-                                                helperText: errors.start,
-                                            }
-                                        }}
-                                    />
-                                </FormControl>
+                                <DateTimePicker
+                                    label="Start Time *"
+                                    value={sessionData.start}
+                                    onChange={handleDateTimeChange}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            error: !!errors.start,
+                                            helperText: errors.start,
+                                        },
+                                        actionBar: {
+                                            actions: ['accept', 'cancel', 'today', 'clear'],
+                                        }
+                                    }}
+                                    disablePast
+                                />
                             </LocalizationProvider>
                         </Grid>
 
-                        {/* Max Appointments Input */}
-                        <Grid item xs={12}>
+                        <Grid item xs={12} md={6}>
                             <TextField
-                                label="Max Appointments"
+                                label="Max Appointments *"
                                 type="number"
                                 name="maxAllowed"
                                 value={sessionData.maxAllowed}
@@ -372,18 +500,21 @@ const SessionManagementComponent = () => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Group color="action" />
+                                            <Group color="action"/>
                                         </InputAdornment>
-                                    )
+                                    ),
+                                    inputProps: {
+                                        min: 1
+                                    }
                                 }}
                             />
                         </Grid>
-                        {/* Organization Dropdown */}
-                        <Grid item xs={12}>
+
+                        <Grid item xs={12} md={6}>
                             <TextField
                                 fullWidth
                                 select
-                                label="Organization"
+                                label="Organization *"
                                 name="organizationId"
                                 value={sessionData.organizationId}
                                 onChange={handleInputChange}
@@ -406,10 +537,30 @@ const SessionManagementComponent = () => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 2 }}>
-                    <Button onClick={handleCloseDialog} sx={{ color: "#555" }}>Cancel</Button>
-                    <Button variant="contained" onClick={handleSubmit} disabled={loading}>
-                        {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Save"}
+                <DialogActions sx={{
+                    px: 3,
+                    py: 2,
+                    borderTop: `1px solid ${theme.palette.divider}`
+                }}>
+                    <Button
+                        onClick={handleCloseDialog}
+                        sx={{
+                            borderRadius: '8px',
+                            textTransform: 'none'
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        sx={{
+                            borderRadius: '8px',
+                            textTransform: 'none'
+                        }}
+                    >
+                        {loading ? <CircularProgress size={24}/> : 'Create Session'}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -417,17 +568,48 @@ const SessionManagementComponent = () => {
             {/* Snackbar Alert */}
             <Snackbar
                 open={snackbar.open}
-                autoHideDuration={3000}
+                autoHideDuration={6000}
                 onClose={() => setSnackbar({...snackbar, open: false})}
-                anchorOrigin={{vertical: "top", horizontal: "center"}}
+                anchorOrigin={{vertical: "bottom", horizontal: "right"}}
             >
-                <Alert onClose={() => setSnackbar({...snackbar, open: false})} severity={snackbar.severity}
-                       sx={{width: "100%"}}>
+                <Alert
+                    onClose={() => setSnackbar({...snackbar, open: false})}
+                    severity={snackbar.severity}
+                    sx={{
+                        borderRadius: '12px',
+                        boxShadow: theme.shadows[4]
+                    }}
+                >
                     {snackbar.message}
                 </Alert>
             </Snackbar>
         </Box>
     );
 };
+
+// Helper component for session details
+const DetailItem = ({icon, label, value}) => (
+    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+        <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 32,
+            height: 32,
+            borderRadius: '8px',
+            bgcolor: 'action.hover'
+        }}>
+            {React.cloneElement(icon, {fontSize: 'small', color: 'action'})}
+        </Box>
+        <Box>
+            <Typography variant="caption" color="text.secondary" display="block">
+                {label}
+            </Typography>
+            <Typography variant="body2" fontWeight="500">
+                {value}
+            </Typography>
+        </Box>
+    </Box>
+);
 
 export default SessionManagementComponent;
